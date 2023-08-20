@@ -26,8 +26,8 @@ export async function getSelectedImageDescription(imageUrl: string, productDescr
                     temperature: 1.26,
                     top_p: 0.9,
                     repetition_penalty: 1,
-                    max_new_tokens: 3000,
-                    max_length: 4000,
+                    max_new_tokens: 1000,
+                    max_length: 1000,
                 }
             })
         console.log("discript", productDescription + " and its style in 500 words");
@@ -39,7 +39,6 @@ export async function getSelectedImageDescription(imageUrl: string, productDescr
         throw error;
     }
 }
-
 
 /**
  * use replicate to get a upscaled image
