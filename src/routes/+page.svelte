@@ -1,36 +1,58 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import moment from 'moment';
 	import { checkStringSize } from '$lib/helpers/Utilis';
-	import { TabGroup, Tab, AppBar, FileDropzone } from '@skeletonlabs/skeleton';
+	import { TabGroup, Tab, AppBar, FileDropzone, ProgressRadial } from '@skeletonlabs/skeleton';
 	import Icon from '@iconify/svelte';
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+	import type { ActionData } from './$types';
 
-	//let projectName = '';
+	export let form: ActionData;
+
+	let currentURL = $page.url;
+	console.log(currentURL.origin);
+
+	console.log(form);
+
+	let status: boolean | undefined = false;
+	let message: string = '';
+	let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
+	let tabSet: number = 0;
+
+	if (form) {
+		let { status: statusform, message: messageform } = form;
+		if (statusform) {
+			imageUrl = `${currentURL.origin}/uploads/${messageform}`;
+			handleImageTab();
+		}
+		status = statusform;
+		message = messageform;
+		console.log(statusform);
+		console.log(messageform);
+	}
 
 	let pageDescription = '';
 	let divDescription: HTMLDivElement;
-	let pageTitle = '';
-	let divTitle: HTMLDivElement;
-	let pageKeywords = '';
-	let divKeywords: HTMLDivElement;
-	let pageTitleCount = 0;
-	let pageDescriptionCount = 0;
 
-	//let localImage = '';
+	let pageTitle = '';
+	let pageTitleCount = 0;
+	let divTitle: HTMLDivElement;
+	
+	let pageKeywords = '';
+	let pageDescriptionCount = 0;
+	let divKeywords: HTMLDivElement;
+	
+
+	let processing = false;
+	let buttonString = 'Write Copy';
+
 	let keywordLength = 20;
 	let clearKeywords = ''; //keywords without the ones that are more than 20 characters
-
 	//outgoing data to description product
 	let productDescription =
 		'This is a dice tower with an inbuilt tray made from cherry wood and lined with a blue felt';
 	let storeDescription =
 		'we are a store that sells equipment for board games, dice games and role-playing games, we sell dice towers and dice trays hand-made from exotic wood species ';
-	let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
-
-	// onMount(() => {
-	// 	//set the default value to current datetime
-	// 	projectName = moment(new Date()).format('YYYYMMDDHHmmss');
-	// });
+	
 
 	function handleImageTab() {
 		if (imageUrl) {
@@ -68,48 +90,21 @@
 		pageKeywords = checkStringSize(editableText, keywordLength);
 	}
 
-	/**
-	 * api/replicate/upscaler +server.ts api call to upscale image
-	 *
-	 * @param scale
-	 */
-	// async function upscaler(scale: number) {
-	// 	try {
-	// 		const response = await fetch('api/replicate/upscaler', {
-	// 			method: 'POST',
-	// 			headers: {
-	// 				'Content-Type': 'application/json'
-	// 			},
-	// 			body: JSON.stringify({ imageUrl: imageUrl, scale: scale, projectName: projectName })
-	// 		});
+	async function handleUpload() {
+		const form = document.getElementById('uploadForm') as HTMLFormElement;
+		form.submit();
+	}
 
-	// 		console.log(response);
-
-	// 		if (response.ok) {
-	// 			console.log(response);
-	// 			let message = '';
-	// 			await response.json().then((data) => {
-	// 				localImage = data.body.newImage;
-	// 				message = data.body.message;
-	// 			});
-	// 			console.log(localImage);
-	// 			console.log('Script triggered successfully with message:', message);
-	// 		} else {
-	// 			console.error('Error triggering script:', response.status);
-	// 		}
-	// 	} catch (error) {
-	// 		console.error('Error triggering script:', error);
-	// 	}
-	// }
-
-	/**
-	 * api/replicate/minigpt4 +server.ts api call to write description
-	 */
 	async function discription() {
 		console.log(productDescription);
 
+		let imageDescription: string = '';
+
 		try {
-			const response = await fetch('api/replicate/minigpt4', {
+			processing = true;
+			buttonString = 'Processing image to Writing Copy...';
+
+			const responseDisc = await fetch('api/replicate/image/discriptor', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -121,7 +116,32 @@
 				})
 			});
 
-			const res = await response.json();
+			if (responseDisc.ok) {
+				const responseData = await responseDisc.json();
+				if (responseData.status === 200) {
+					imageDescription = responseData.body;
+					console.log('Description created successfully.');
+					buttonString = 'Getting images Description...';
+				} else {
+					console.error('Error returned from the server:', responseData.body.message);
+				}
+			} else {
+				console.error('Network error:', responseDisc.status, responseDisc.body);
+			}
+
+			const responsEtsy = await fetch('api/replicate/image/etsy', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					imageDescription: imageDescription,
+					productDescription: productDescription,
+					storeDescription: storeDescription
+				})
+			});
+
+			const res = await responsEtsy.json();
 			const { title, description, keywords } = res.body;
 
 			//check if all keywords are less than 20 characters .and mark the ones that are not
@@ -130,19 +150,23 @@
 			pageDescriptionCount = description.length;
 			pageTitleCount = title.length;
 
-			if (response.ok) {
+			if (responsEtsy.ok) {
 				pageTitle = title;
 				pageDescription = description;
 				pageKeywords = keywordsChecked;
 				clearKeywords = keywords;
 
+				buttonString = 'images Description created successfully.';
+
 				console.log('Description created successfully.');
 			} else {
-				console.error('Error in returned Description script:', response.status);
+				console.error('Error in returned Description script:', responsEtsy.status);
 			}
 		} catch (error) {
 			console.error('Error Description script:', error);
 		}
+		processing = false;
+		buttonString = 'Write New Copy';
 	}
 
 	function copyToClipboard(divElement: HTMLDivElement) {
@@ -157,7 +181,7 @@
 		);
 	}
 
-	let tabSet: number = 0;
+	
 </script>
 
 <main class="lg:grid lg:grid-cols-5 main">
@@ -199,19 +223,35 @@
 							{/if}
 							<svelte:fragment slot="panel">
 								{#if tabSet === 0}
-									<div class="h-72">
-										<FileDropzone name="files" class="flex justify-center min-h-full">
-											<svelte:fragment slot="lead">
-												<div class="w-full flex justify-center">
-													<Icon icon="formkit:upload" class="text-4xl" />
-												</div>
-											</svelte:fragment>
-											<svelte:fragment slot="message">Image Requiring Description</svelte:fragment>
-											<svelte:fragment slot="meta">
-												Upload an image that requires a discription to be generated
-											</svelte:fragment>
-										</FileDropzone>
-									</div>
+									<form
+										use:enhance
+										id="uploadForm"
+										action="?/upload"
+										method="post"
+										enctype="multipart/form-data"
+									>
+										<div class="h-72">
+											<FileDropzone
+												name="file"
+												on:change={handleUpload}
+												class="flex justify-center min-h-full"
+											>
+												<svelte:fragment slot="lead">
+													<div class="w-full flex justify-center">
+														<Icon icon="formkit:upload" class="text-4xl" />
+													</div>
+												</svelte:fragment>
+												<svelte:fragment slot="message">Image Requiring Description</svelte:fragment
+												>
+												<svelte:fragment slot="meta">
+													Upload an image that requires a discription to be generated
+													{#if !status && message !== ''}
+														<div class="bg-warning-700 text-red-700">{message}</div>
+													{/if}
+												</svelte:fragment>
+											</FileDropzone>
+										</div>
+									</form>
 								{:else if tabSet === 1}
 									<div class="h-72">
 										<div
@@ -270,9 +310,17 @@
 
 				<div class="w-full">
 					<div class="flex justify-center">
-						<button class="btn variant-filled my-2 w-4/6 text-fuchsia-400" on:click={discription}
-							>Write copy</button
-						>
+						<button class="btn variant-filled my-2 w-4/6 text-fuchsia-400" on:click={discription}>
+							{buttonString}
+							{#if processing}
+								<ProgressRadial
+									class="w-6 h-6 ml-2"
+									stroke={240}
+									meter="stroke-primary-500"
+									track="stroke-primary-500/30"
+								/>
+							{/if}
+						</button>
 					</div>
 					<card-title>
 						<AppBar

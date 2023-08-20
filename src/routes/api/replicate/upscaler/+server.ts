@@ -5,7 +5,8 @@ import fs from 'fs';
 import path from 'path';
 import type { RequestHandler } from './$types';
 
-import { getFilePathDetails, downloadImageLocally } from '$lib/helpers/scriptHelper';
+import { getFilePathDetails } from '$lib/helpers/scriptHelper';
+import { downloadImageLocally } from '$lib/helpers/Utilis';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
 

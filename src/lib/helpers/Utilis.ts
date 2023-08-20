@@ -88,3 +88,18 @@ export async function downloadImageLocally(uri: string, directoryPath: string, f
         throw error;
     }
 }
+
+/**
+ * 
+ * @param blob 
+ * @returns 
+ */
+
+export async function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(blob);
+    });
+}
