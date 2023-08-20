@@ -1,16 +1,28 @@
+import { join } from 'path';
+import type { Config } from 'tailwindcss';
+
+// 1. Import the Skeleton plugin
+import { skeleton } from '@skeletonlabs/tw-plugin';
+
+
 /** @type {import('tailwindcss').Config}*/
 const config = {
 	darkMode: 'class',
 	content: [
 		'./src/**/*.{html,js,svelte,ts}',
-		require('path').join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}')
+		join(require.resolve(
+			'@skeletonlabs/skeleton'),
+			'../**/*.{html,js,svelte,ts}'
+		)
 	],
 
 	theme: {
 		extend: {}
 	},
 
-	plugins: [...require('@skeletonlabs/skeleton/tailwind/skeleton.cjs')()]
+	plugins: [skeleton({
+		themes: { preset: [ "crimson" ] }
+	})]
 };
 
-module.exports = config;
+export default config;

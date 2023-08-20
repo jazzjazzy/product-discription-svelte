@@ -14,7 +14,7 @@
 	console.log(form);
 
 	let status: boolean | undefined = false;
-	let message: string = '';
+	let message: string | undefined = '';
 	let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
 	let tabSet: number = 0;
 

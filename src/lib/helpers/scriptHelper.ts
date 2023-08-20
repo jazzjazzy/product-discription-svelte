@@ -4,8 +4,6 @@ import fs from 'fs';
 import { Storage } from '@google-cloud/storage';
 import axios from 'axios';
 import path from 'path';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
 
 
 const storage = new Storage();

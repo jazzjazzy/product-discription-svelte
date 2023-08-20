@@ -1,14 +1,11 @@
 import { getUpScaleImage } from '$lib/helpers/replicate';
 import { json } from '@sveltejs/kit'
-import axios from "axios";
-import fs from 'fs';
 import path from 'path';
 import type { RequestHandler } from './$types';
 
 import { getFilePathDetails } from '$lib/helpers/scriptHelper';
-import { downloadImageLocally } from '$lib/helpers/Utilis';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
+import { downloadImageLocally } from '$lib/server/Utilis';
+
 
 export const POST: RequestHandler = async ({ request }) => {
 
