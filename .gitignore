@@ -11,3 +11,4 @@ vite.config.ts.timestamp-*
 /static/originals
 /static/storage
 /static/uploads
+.vercel
