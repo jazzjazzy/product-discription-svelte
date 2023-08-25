@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { checkStringSize } from '$lib/helpers/Utilis';
+	import { formateKeywordstring } from '$lib/helpers/Utilis';
 	import { TabGroup, Tab, AppBar, FileDropzone, ProgressRadial } from '@skeletonlabs/skeleton';
 	import Icon from '@iconify/svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import type { ActionData } from './$types';
+	import CopyContentToClipBoard from '$lib/components/copyContentToClipBoard.svelte';
 
 	export let form: ActionData;
 
@@ -13,21 +14,24 @@
 
 	console.log(form);
 
-	let status: boolean | undefined = false;
-	let message: string | undefined = '';
+	let loading = false;
+	let etsyResponse = '';
+	let endStream = false;
+	let error = '';
+
+	let success: boolean = false;
+	let message: string = '';
 	let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
 	let tabSet: number = 0;
 
 	if (form) {
-		let { status: statusform, message: messageform } = form;
+		let { success: statusform, message: messageform } = form;
 		if (statusform) {
-			imageUrl = `${currentURL.origin}/uploads/${messageform}`;
+			imageUrl = messageform;
 			handleImageTab();
 		}
-		status = statusform;
+		success = statusform;
 		message = messageform;
-		console.log(statusform);
-		console.log(messageform);
 	}
 
 	let pageDescription = '';
@@ -36,11 +40,12 @@
 	let pageTitle = '';
 	let pageTitleCount = 0;
 	let divTitle: HTMLDivElement;
-	
+
 	let pageKeywords = '';
 	let pageDescriptionCount = 0;
 	let divKeywords: HTMLDivElement;
-	
+
+	let isEditable = false;
 
 	let processing = false;
 	let buttonString = 'Write Copy';
@@ -52,7 +57,6 @@
 		'This is a dice tower with an inbuilt tray made from cherry wood and lined with a blue felt';
 	let storeDescription =
 		'we are a store that sells equipment for board games, dice games and role-playing games, we sell dice towers and dice trays hand-made from exotic wood species ';
-	
 
 	function handleImageTab() {
 		if (imageUrl) {
@@ -61,11 +65,30 @@
 	}
 
 	/**
-	 * count characters on editable div
+	 * @type {string}
+	 */
+	let searchResponse = '';
+	/**
+	 * @type {Array<string | {title: string, description: string}>}
+	 */
+	let recommendations = [];
+
+	/**
+	 * Count characters on in a static div for Title and Description
+	 * This is used to calulate after finishing processing
+	 */
+	function titleAndDescriptionLength(): void {
+		pageTitleCount = pageTitle.length;
+		pageDescriptionCount = pageDescription.length;
+	}
+
+	/**
+	 * Count characters on editable div for Title and Description
+	 * This is the live count if a user is editing the text
 	 *
 	 * @param event
 	 */
-	function countChar(event: Event): void {
+	function recountTitleAndDescriptionLength(event: Event): void {
 		const target = event.target as HTMLDivElement;
 
 		if (target.dataset.type === 'title') {
@@ -87,7 +110,7 @@
 		let target = event.target as HTMLDivElement;
 		let editableText = target.textContent || '';
 
-		pageKeywords = checkStringSize(editableText, keywordLength);
+		pageKeywords = formateKeywordstring(editableText, keywordLength);
 	}
 
 	async function handleUpload() {
@@ -95,7 +118,14 @@
 		form.submit();
 	}
 
+	function newlineToBreak(text: string) {
+		return text.replace(/\n/g, '<br>');
+	}
+
 	async function discription() {
+		if (loading) return;
+		loading = true;
+
 		console.log(productDescription);
 
 		let imageDescription: string = '';
@@ -104,31 +134,45 @@
 			processing = true;
 			buttonString = 'Processing image to Writing Copy...';
 
-			const responseDisc = await fetch('api/replicate/image/discriptor', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					imageUrl: imageUrl,
-					productDescription: productDescription,
-					storeDescription: storeDescription
-				})
-			});
+			/****
+			 *
+			 * GET IMAGE DESCRIPTION FROM Replicate AI
+			 *
+			 */
+			// const responseDisc = await fetch('api/replicate/image/discriptor', {
+			// 	method: 'POST',
+			// 	headers: {
+			// 		'Content-Type': 'application/json'
+			// 	},
+			// 	body: JSON.stringify({
+			// 		imageUrl: imageUrl,
+			// 		productDescription: productDescription,
+			// 		storeDescription: storeDescription
+			// 	})
+			// });
 
-			if (responseDisc.ok) {
-				const responseData = await responseDisc.json();
-				if (responseData.status === 200) {
-					imageDescription = responseData.body;
-					console.log('Description created successfully.');
-					buttonString = 'Getting images Description...';
-				} else {
-					console.error('Error returned from the server:', responseData.body.message);
-				}
-			} else {
-				console.error('Network error:', responseDisc.status, responseDisc.body);
-			}
+			// if (responseDisc.ok) {
+			// 	const responseData = await responseDisc.json();
+			// 	if (responseData.status === 200) {
+			// 		imageDescription = responseData.body;
+			// 		console.log('Description created successfully.');
+			// 		buttonString = 'Getting images Description...';
+			// 	} else {
+			// 		console.error('Error returned from the server:', responseData.body.message);
+			// 	}
+			// } else {
+			// 	console.error('Network error:', responseDisc.status, responseDisc.body);
+			// }
 
+			imageDescription =
+				'The wooden dice tower has a sleek and modern design, with a blue felt lining the inside of the tray. The tower is made of cherry wood, which gives it a warm and natural look. The tray is large enough to hold several dice at once, making it easy to play games with multiple players. The tower is also lightweight and easy to move around, making it a great addition to any game night.';
+
+			/****
+			 *
+			 * GET ETSY DESCRIPTION FROM OPENAI
+			 *
+			 */
+			console.log('Json data sent to OpenAI:');
 			const responsEtsy = await fetch('api/replicate/image/etsy', {
 				method: 'POST',
 				headers: {
@@ -140,28 +184,76 @@
 					storeDescription: storeDescription
 				})
 			});
-
-			const res = await responsEtsy.json();
-			const { title, description, keywords } = res.body;
-
-			//check if all keywords are less than 20 characters .and mark the ones that are not
-			const keywordsChecked = checkStringSize(keywords, keywordLength);
-
-			pageDescriptionCount = description.length;
-			pageTitleCount = title.length;
-
+			console.log('responseData', responsEtsy);
 			if (responsEtsy.ok) {
-				pageTitle = title;
-				pageDescription = description;
-				pageKeywords = keywordsChecked;
-				clearKeywords = keywords;
+				pageTitleCount = 0;
+				pageDescriptionCount = 0;
 
-				buttonString = 'images Description created successfully.';
+				console.log('Etsy description created successfully.');
+				try {
+					const data = responsEtsy.body;
+					if (!data) {
+						return;
+					}
 
-				console.log('Description created successfully.');
+					const reader = data.getReader();
+					const decoder = new TextDecoder();
+					let currFiels = '';
+
+					pageTitle = '';
+					pageDescription = '';
+					pageKeywords = '';
+					etsyResponse = '';
+					isEditable = false;
+
+					while (true) {
+						const { value, done } = await reader.read();
+						let chunkValue = decoder.decode(value);
+
+						console.log('chunkValue', chunkValue);
+
+						//console.log(chunkValue);
+						etsyResponse += chunkValue;
+
+						if (chunkValue == `Title` || chunkValue.trim() == `Title:`) {
+							currFiels = 'title';
+							chunkValue = '';
+						} else if (chunkValue == 'Description' || chunkValue.trim() == 'Description:') {
+							currFiels = 'description';
+							chunkValue = '';
+						} else if (chunkValue == 'Keywords' || chunkValue.trim() == 'Keywords:') {
+							currFiels = 'keywords';
+							chunkValue = '';
+						}
+
+						chunkValue = chunkValue.replace(/"|}|{|:|'''|`/g, '');
+
+						//console.log('currFiels', currFiels);
+						if (currFiels === 'title') {
+							pageTitle += chunkValue;
+						} else if (currFiels === 'description') {
+							//chunkValue = chunkValue.replace(/\n/g, '<br />');
+							pageDescription += chunkValue;
+						} else if (currFiels === 'keywords') {
+							pageKeywords += chunkValue;
+						}
+
+						if (done) {
+							clearKeywords = pageKeywords;
+							pageKeywords = formateKeywordstring(pageKeywords, keywordLength);
+							titleAndDescriptionLength();
+							isEditable = true;
+							endStream = true;
+							break;
+						}
+					}
+				} catch (err) {
+					error = 'Looks like OpenAI timed out :(';
+				}
 			} else {
-				console.error('Error in returned Description script:', responsEtsy.status);
+				error = await responsEtsy.text();
 			}
+			loading = false;
 		} catch (error) {
 			console.error('Error Description script:', error);
 		}
@@ -180,8 +272,6 @@
 			}
 		);
 	}
-
-	
 </script>
 
 <main class="lg:grid lg:grid-cols-5 main">
@@ -245,7 +335,7 @@
 												>
 												<svelte:fragment slot="meta">
 													Upload an image that requires a discription to be generated
-													{#if !status && message !== ''}
+													{#if !success && message}
 														<div class="bg-warning-700 text-red-700">{message}</div>
 													{/if}
 												</svelte:fragment>
@@ -278,7 +368,7 @@
 									</div>
 								{:else if tabSet === 2}
 									{#if imageUrl !== ''}
-										<img src={imageUrl} alt="original" class="zoom" />
+										<img src={imageUrl} alt="original" />
 									{/if}
 								{/if}
 							</svelte:fragment>
@@ -286,7 +376,9 @@
 					</div>
 					<div class="col-span-1">
 						<div class="card p-3">
-							<div class="card-header pt-0 px-0"><h3>Shop Description</h3></div>
+							<div class="card-header pt-0 px-0">
+								<h3 class="pl-3 pb-2 font-semibold text-lg">Shop Description</h3>
+							</div>
 							<div class="card-body">
 								<textarea
 									bind:value={storeDescription}
@@ -295,8 +387,10 @@
 								/>
 							</div>
 						</div>
-						<div class="card p-3">
-							<div class="card-header pt-0 px-0">Product Description</div>
+						<div class="card p-3 mt-3">
+							<div class="card-header pt-0 px-0">
+								<h3 class="pl-3 pb-2 font-semibold text-lg">Product Description</h3>
+							</div>
 							<div class="card-body">
 								<textarea
 									bind:value={productDescription}
@@ -331,18 +425,19 @@
 						>
 							<h2 class="text-2xl">Title</h2>
 							<svelte:fragment slot="trail">
-								<button on:click={() => copyToClipboard(divTitle)}
-									><Icon icon="ph:copy-fill" class="text-2xl" /></button
-								>
+								{#if isEditable}
+									<CopyContentToClipBoard element="pageTitle" />
+								{/if}
 							</svelte:fragment>
 						</AppBar>
 						<h1>
 							<div
 								bind:this={divTitle}
 								class="w-full p-3"
-								contenteditable="true"
-								on:input={countChar}
+								contenteditable={isEditable}
+								on:input={recountTitleAndDescriptionLength}
 								data-type="title"
+								data-clipboard="pageTitle"
 							>
 								{@html pageTitle}
 							</div>
@@ -362,23 +457,24 @@
 						>
 							<h2 class="text-2xl">Description</h2>
 							<svelte:fragment slot="trail">
-								<button on:click={() => copyToClipboard(divDescription)}
-									><Icon icon="ph:copy-fill" class="text-2xl" /></button
-								>
+								{#if isEditable}
+									<CopyContentToClipBoard element="pageDescription" />
+								{/if}
 							</svelte:fragment>
 						</AppBar>
 						<div
 							bind:this={divDescription}
 							class="w-full p-3"
-							contenteditable="true"
-							on:input={countChar}
+							contenteditable={isEditable}
+							on:input={recountTitleAndDescriptionLength}
 							data-type="description"
+							data-clipboard="pageDescription"
 						>
-							{@html pageDescription}
+							{@html newlineToBreak(pageDescription)}
 						</div>
 						<div class="text-xs float-right text-red-500">
 							{#if pageDescriptionCount > 0}
-								{pageDescriptionCount}
+								{@html pageDescriptionCount}
 							{/if}
 						</div>
 					</card-description>
@@ -392,20 +488,42 @@
 						>
 							<h2 class="text-2xl">Keywords</h2>
 							<svelte:fragment slot="trail">
-								<button on:click={() => copyToClipboard(divKeywords)}
-									><Icon icon="ph:copy-fill" class="text-2xl" />
-								</button></svelte:fragment
-							>
+								{#if isEditable}
+									<CopyContentToClipBoard element="pageKeywords" />
+								{/if}
+							</svelte:fragment>
 						</AppBar>
 						<div
 							bind:this={divKeywords}
 							class="w-full p-3"
-							contenteditable="true"
+							contenteditable={isEditable}
 							on:blur={checkKeywordLength}
 						>
 							{@html pageKeywords}
 						</div>
+						<div class="hidden" data-clipboard="pageKeywords">
+							{@html clearKeywords}
+						</div>
 					</card-keywords>
+
+					<card-json>
+						<AppBar
+							padding="0"
+							gridColumns="grid-cols-2"
+							slotDefault="place-self-left"
+							slotTrail="place-content-end"
+						>
+							<h2 class="text-2xl">Json output</h2>
+							<svelte:fragment slot="trail">
+								{#if isEditable}
+									<copyContentToClipBoard element="pageJson" />
+								{/if}
+							</svelte:fragment>
+						</AppBar>
+						<div class="w-full p-3">
+							<pre id="json" data-clipboard="pageJson">{@html etsyResponse}</pre>
+						</div>
+					</card-json>
 				</div>
 			</div>
 		</div>
@@ -416,7 +534,8 @@
 <style>
 	card-title,
 	card-description,
-	card-keywords {
+	card-keywords,
+	card-json {
 		display: block;
 		border: 1px solid #ccc;
 		@apply m-3 p-3 overflow-y-auto;
@@ -429,20 +548,5 @@
 		& div {
 			@apply h-64 overflow-y-auto;
 		}
-	}
-
-	card-keywords {
-		@apply h-32;
-	}
-
-	.zoom {
-		transition: transform 0.2s; /* Animation */
-		margin: 0 auto;
-	}
-
-	.zoom:hover {
-		transform: scale(
-			2.5
-		); /* (250% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
 	}
 </style>

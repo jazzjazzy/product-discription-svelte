@@ -1,63 +1,67 @@
 import type { Actions } from './$types';
-import { writeFile } from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
+import { Storage } from '@google-cloud/storage';
+import { BUCKET_KEY_FILE, BUCKET_NAME, BUCKET_URL, } from '$env/static/private';
 
 
-export const actions = {
+
+
+const keyObject = JSON.parse(BUCKET_KEY_FILE);
+
+const storage = new Storage({ credentials: keyObject });
+const bucket = storage.bucket(BUCKET_NAME);
+
+export const actions: Actions = {
   upload: async ({ cookies, request, locals }) => {
+    try {
+      const data = await request.formData();
+      const file = data.get('file') as File;
 
-    const data = await request.formData();
-    const file = data.get('file') as File; // value of 'name' attribute of input
 
-    if (!file) {
-      return { success: false, message: 'File type not accepted.' };
+
+      if (!file) {
+        return { success: false, message: 'File type not accepted.' };
+      }
+
+      const acceptedFileTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
+
+      if (!acceptedFileTypes.includes(file.type)) {
+        return { success: false, message: 'File type not accepted.' };
+      }
+
+      let bufferToUpload: Uint8Array;
+
+      if (['image/png', 'image/webp', 'image/avif'].includes(file.type)) {
+        // Convert the file's stream to a buffer.
+        const fileBuffer = new Uint8Array(await file.arrayBuffer());
+
+        // Process the buffer with sharp.
+        bufferToUpload = await sharp(fileBuffer)
+          .toFormat('jpeg')
+          .toBuffer();
+      } else {
+        bufferToUpload = new Uint8Array(await file.arrayBuffer());
+      }
+
+      const gcsFileName = `${Date.now()}-${file.name}.jpg`;
+      const gcsFile = bucket.file(gcsFileName);
+
+      const google = await new Promise((resolve, reject) => {
+        const stream = gcsFile.createWriteStream({ contentType: 'image/jpeg' });
+        stream.on('error', reject);
+        stream.on('finish', resolve);
+        stream.end(bufferToUpload);
+      });
+
+      // If you need the public URL, you can generate it. This assumes your bucket is public.
+      const publicUrl = `${BUCKET_URL}/${bucket.name}/${gcsFileName}`;
+
+      return { success: true, message: publicUrl };
+    } catch (error: any) {
+      console.error(error);
+      return { success: false, message: error.message };
     }
-
-    const directoryPath = './static/uploads';
-
-    //create directory if it doesn't exist
-    if (!fs.existsSync(directoryPath)) {
-      fs.mkdirSync(directoryPath, { recursive: true });
-    }
-
-    const filePath = path.join(directoryPath, file.name);
-
-    const acceptedFileTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
-
-    if (!acceptedFileTypes.includes(file.type)) {
-      return { success: false, message: 'File type not accepted.' };
-    }
-
-    await writeFile(filePath, file.stream());
-
-    //if file is not an jpg then we convert it to jpg
-    if (['image/png', 'image/webp', 'image/avif'].includes(file.type)) {
-      // get the file type from the Mime type
-      let fileType = '.' + (file.type).split('/').pop();
-      //get the input file path
-      let inputtfile = `./static/uploads/${file.name}`;
-      //get the output file path
-      let outputPath = inputtfile.replace(fileType, '.jpg')
-
-      let filename = (outputPath).split('/').pop();
-
-      const convertedBuffer = await sharp(inputtfile)
-        .toFormat('jpeg')
-        .toFile(outputPath, (err, info) => {
-          if (err) {
-            return { status: false, body: { message: 'Error:', err: err } }
-          } else {
-            return { status: true, body: { message: 'File converted successfully:', info: info } }
-          }
-        });
-
-      return { status: true, message: filename };
-    }
-
-    let filename = (filePath).split('/').pop();
-
-    return { success: true, message: filename };
   }
-} satisfies Actions;
+};

@@ -1,16 +1,15 @@
 import { OPENAI_API_KEY } from '$env/static/private';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 
-export async function getEtsyDescription(storeDiscription: string, productDescription:string, imageDes: string): Promise<any> {
+export async function getEtsyDescription(storeDiscription: string, productDescription: string, imageDes: string): Promise<any> {
 
     try {
-        const configuration = new Configuration({
+
+        const openai = new OpenAI({
             apiKey: OPENAI_API_KEY,
         });
 
-        const openai = new OpenAIApi(configuration);
-
-        const chatCompletion = await openai.createChatCompletion({
+        const chatCompletion = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [
                 {
@@ -31,7 +30,7 @@ export async function getEtsyDescription(storeDiscription: string, productDescri
                         " and this description of the product" +
                         productDescription
                 },
-            ]
+            ],
         })
 
         console.log('chatCompletion', chatCompletion.data.choices[0].message?.content);

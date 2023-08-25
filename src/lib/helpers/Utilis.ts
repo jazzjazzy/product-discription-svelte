@@ -1,5 +1,5 @@
 /**
- * This will taking in comma seperated list and s string size and return a string 
+ * This will taking in comma seperated list and check string size and returning a formated html
  * with the keywords that are over the size limit highlighted in red 
  *  
  * @param keywords 
@@ -7,7 +7,7 @@
  * @returns string 
  */
 
-export function checkStringSize(keywords: string, size: number): string {
+export function formateKeywordstring(keywords: string, size: number): string {
 
     let keywordsCleaned: string | null = stripHtmlfromString(keywords);
 
@@ -30,6 +30,7 @@ export function checkStringSize(keywords: string, size: number): string {
     }
     return revisedKeyword.join(',');
 }
+
 
 /**
  * This will take in a string and remove all html tags from it
