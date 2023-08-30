@@ -139,33 +139,33 @@
 			 * GET IMAGE DESCRIPTION FROM Replicate AI
 			 *
 			 */
-			// const responseDisc = await fetch('api/replicate/image/discriptor', {
-			// 	method: 'POST',
-			// 	headers: {
-			// 		'Content-Type': 'application/json'
-			// 	},
-			// 	body: JSON.stringify({
-			// 		imageUrl: imageUrl,
-			// 		productDescription: productDescription,
-			// 		storeDescription: storeDescription
-			// 	})
-			// });
+			const responseDisc = await fetch('api/replicate/image/discriptor', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					imageUrl: imageUrl,
+					productDescription: productDescription,
+					storeDescription: storeDescription
+				})
+			});
 
-			// if (responseDisc.ok) {
-			// 	const responseData = await responseDisc.json();
-			// 	if (responseData.status === 200) {
-			// 		imageDescription = responseData.body;
-			// 		console.log('Description created successfully.');
-			// 		buttonString = 'Getting images Description...';
-			// 	} else {
-			// 		console.error('Error returned from the server:', responseData.body.message);
-			// 	}
-			// } else {
-			// 	console.error('Network error:', responseDisc.status, responseDisc.body);
-			// }
+			if (responseDisc.ok) {
+				const responseData = await responseDisc.json();
+				if (responseData.status === 200) {
+					imageDescription = responseData.body;
+					console.log('Description created successfully.');
+					buttonString = 'Getting images Description...';
+				} else {
+					console.error('Error returned from the server:', responseData.body.message);
+				}
+			} else {
+				console.error('Network error:', responseDisc.status, responseDisc.body);
+			}
 
-			imageDescription =
-				'The wooden dice tower has a sleek and modern design, with a blue felt lining the inside of the tray. The tower is made of cherry wood, which gives it a warm and natural look. The tray is large enough to hold several dice at once, making it easy to play games with multiple players. The tower is also lightweight and easy to move around, making it a great addition to any game night.';
+			//imageDescription =
+			//	'The wooden dice tower has a sleek and modern design, with a blue felt lining the inside of the tray. The tower is made of cherry wood, which gives it a warm and natural look. The tray is large enough to hold several dice at once, making it easy to play games with multiple players. The tower is also lightweight and easy to move around, making it a great addition to any game night.';
 
 			/****
 			 *
