@@ -9,3 +9,69 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id                 String         @id @unique
+  firstname          String
+  surname            String
+  email              String         @unique
+  stripe_customer_id String?
+  subscription_id    String?
+  auth_session       Session[]
+  key                Key[]
+  subscription       Subscription[]
+}
+
+model Session {
+  id             String @id @unique
+  user_id        String
+  active_expires BigInt
+  idle_expires   BigInt
+  user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Key {
+  id              String  @id @unique
+  hashed_password String?
+  user_id         String
+  user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Pricing {
+  id              String         @id @default(uuid())
+  name            String
+  price           Float
+  description     String?
+  list            String
+  stripe_price_id String
+  visable         Boolean        @default(true)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+  deleted_at      DateTime?
+  subscription    Subscription[]
+
+  @@index([stripe_price_id])
+}
+
+model Subscription {
+  id                     String    @id @default(uuid())
+  type                   String
+  user_id                String
+  price_id               String
+  stripe_subscription_id String
+  stripe_status          String
+  stripe_price_id        String
+  stripe_customer_id     String    @unique
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+  deleted_at             DateTime?
+  User                   User?     @relation(fields: [user_id], references: [id])
+  Pricing                Pricing?  @relation(fields: [price_id], references: [id])
+
+  @@index([user_id])
+  @@index([price_id])
+}
