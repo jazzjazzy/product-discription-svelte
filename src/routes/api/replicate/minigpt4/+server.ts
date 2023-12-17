@@ -11,8 +11,11 @@ export const POST: RequestHandler = async ({ request }) => {
     console.log('imageUrl', imageUrl);
     //lets get a discription of the image to create a prompt for the etsy description
     const imageDescription = await getSelectedImageDescription(imageUrl, productDescription);
+    console.log('imageDescription', imageDescription);
     //create the etsy description from the image description
     const etsy: any = await getEtsyDescription(storeDescription, productDescription, imageDescription)
+
+    console.log('etsy', etsy);
     //clean up the etsy description
     let etsyDescription = cleanEstyDescription(etsy);
 

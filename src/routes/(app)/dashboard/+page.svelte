@@ -21,7 +21,8 @@
 
 	let success: boolean = false;
 	let message: string = '';
-	let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
+	//let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
+	let imageUrl = '';
 	let tabSet: number = 0;
 
 	if (form) {
@@ -44,6 +45,8 @@
 	let pageKeywords = '';
 	let pageDescriptionCount = 0;
 	let divKeywords: HTMLDivElement;
+
+	let pageJson = '';
 
 	let isEditable = false;
 
@@ -139,7 +142,7 @@
 			 * GET IMAGE DESCRIPTION FROM Replicate AI
 			 *
 			 */
-			const responseDisc = await fetch('api/replicate/image/discriptor', {
+			const responseDisc = await fetch('api/discriptor', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -151,108 +154,46 @@
 				})
 			});
 
-			if (responseDisc.ok) {
-				const responseData = await responseDisc.json();
-				if (responseData.status === 200) {
-					imageDescription = responseData.body;
+			let response = await responseDisc.json();
+			const firstResult = response.body;
+
+			if (response.status === 200) {
+				console.log(' typeOF', typeof firstResult);
+				const resultsArray = JSON.parse(firstResult);
+				console.log('resultsArray typeOF', typeof resultsArray);
+				console.log('444', resultsArray.results[0]);
+
+				if (resultsArray && resultsArray.results.length > 0) {
+					const firstItem = resultsArray.results[0];
+
+					console.log('product_title', firstItem.product_title);
+					console.log('product_description', firstItem.product_description);
+					console.log('product_keywords', firstItem.product_keywords);
+
+					let title = firstItem.product_title;
+					let description = firstItem.product_description;
+					let keywords = firstItem.product_keywords;
+					pageJson = JSON.stringify(firstItem, null, 4);
+
+					//check if all keywords are less than 20 characters .and mark the ones that are not
+					const keywordsChecked = formateKeywordstring(keywords, keywordLength);
+
+					pageDescriptionCount = description.length;
+					pageTitleCount = title.length;
+
+					pageTitle = title;
+					pageDescription = description;
+					pageKeywords = keywordsChecked;
+					clearKeywords = keywords;
+
+					buttonString = 'images Description created successfully.';
+
 					console.log('Description created successfully.');
-					buttonString = 'Getting images Description...';
 				} else {
-					console.error('Error returned from the server:', responseData.body.message);
+					console.log('No results found or results array is empty');
 				}
-			} else {
-				console.error('Network error:', responseDisc.status, responseDisc.body);
 			}
 
-			//imageDescription =
-			//	'The wooden dice tower has a sleek and modern design, with a blue felt lining the inside of the tray. The tower is made of cherry wood, which gives it a warm and natural look. The tray is large enough to hold several dice at once, making it easy to play games with multiple players. The tower is also lightweight and easy to move around, making it a great addition to any game night.';
-
-			/****
-			 *
-			 * GET ETSY DESCRIPTION FROM OPENAI
-			 *
-			 */
-			console.log('Json data sent to OpenAI:');
-			const responsEtsy = await fetch('api/replicate/image/etsy', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					imageDescription: imageDescription,
-					productDescription: productDescription,
-					storeDescription: storeDescription
-				})
-			});
-			console.log('responseData', responsEtsy);
-			if (responsEtsy.ok) {
-				pageTitleCount = 0;
-				pageDescriptionCount = 0;
-
-				console.log('Etsy description created successfully.');
-				try {
-					const data = responsEtsy.body;
-					if (!data) {
-						return;
-					}
-
-					const reader = data.getReader();
-					const decoder = new TextDecoder();
-					let currFiels = '';
-
-					pageTitle = '';
-					pageDescription = '';
-					pageKeywords = '';
-					etsyResponse = '';
-					isEditable = false;
-
-					while (true) {
-						const { value, done } = await reader.read();
-						let chunkValue = decoder.decode(value);
-
-						console.log('chunkValue', chunkValue);
-
-						//console.log(chunkValue);
-						etsyResponse += chunkValue;
-
-						if (chunkValue == `Title` || chunkValue.trim() == `Title:`) {
-							currFiels = 'title';
-							chunkValue = '';
-						} else if (chunkValue == 'Description' || chunkValue.trim() == 'Description:') {
-							currFiels = 'description';
-							chunkValue = '';
-						} else if (chunkValue == 'Keywords' || chunkValue.trim() == 'Keywords:') {
-							currFiels = 'keywords';
-							chunkValue = '';
-						}
-
-						chunkValue = chunkValue.replace(/"|}|{|:|'''|`/g, '');
-
-						//console.log('currFiels', currFiels);
-						if (currFiels === 'title') {
-							pageTitle += chunkValue;
-						} else if (currFiels === 'description') {
-							//chunkValue = chunkValue.replace(/\n/g, '<br />');
-							pageDescription += chunkValue;
-						} else if (currFiels === 'keywords') {
-							pageKeywords += chunkValue;
-						}
-
-						if (done) {
-							clearKeywords = pageKeywords;
-							pageKeywords = formateKeywordstring(pageKeywords, keywordLength);
-							titleAndDescriptionLength();
-							isEditable = true;
-							endStream = true;
-							break;
-						}
-					}
-				} catch (err) {
-					error = 'Looks like OpenAI timed out :(';
-				}
-			} else {
-				error = await responsEtsy.text();
-			}
 			loading = false;
 		} catch (error) {
 			console.error('Error Description script:', error);
@@ -363,11 +304,12 @@
 													placeholder="https:// Enter image url"
 												/><br />
 											</div>
+											textarea
 										</div>
 									</div>
 								{:else if tabSet === 2}
 									{#if imageUrl !== ''}
-										<img src={imageUrl} alt="original" />
+										<img src="/uploads/{imageUrl}" alt="original" />
 									{/if}
 								{/if}
 							</svelte:fragment>
@@ -422,7 +364,7 @@
 							slotDefault="place-self-left"
 							slotTrail="place-content-end"
 						>
-							<h2 class="text-2xl">Title</h2>
+							<h2 class="flex justify-start text-2xl">Title</h2>
 							<svelte:fragment slot="trail">
 								{#if isEditable}
 									<CopyContentToClipBoard element="pageTitle" />
@@ -454,7 +396,7 @@
 							slotDefault="place-self-left"
 							slotTrail="place-content-end"
 						>
-							<h2 class="text-2xl">Description</h2>
+							<h2 class="flex justify-start text-2xl">Description</h2>
 							<svelte:fragment slot="trail">
 								{#if isEditable}
 									<CopyContentToClipBoard element="pageDescription" />
@@ -485,7 +427,7 @@
 							slotDefault="place-self-left"
 							slotTrail="place-content-end"
 						>
-							<h2 class="text-2xl">Keywords</h2>
+							<h2 class="flex justify-start text-2xl">Keywords</h2>
 							<svelte:fragment slot="trail">
 								{#if isEditable}
 									<CopyContentToClipBoard element="pageKeywords" />
@@ -512,7 +454,7 @@
 							slotDefault="place-self-left"
 							slotTrail="place-content-end"
 						>
-							<h2 class="text-2xl">Json output</h2>
+							<h2 class="flex justify-start text-2xl">Json output</h2>
 							<svelte:fragment slot="trail">
 								{#if isEditable}
 									<copyContentToClipBoard element="pageJson" />
@@ -520,7 +462,7 @@
 							</svelte:fragment>
 						</AppBar>
 						<div class="w-full p-3">
-							<pre id="json" data-clipboard="pageJson">{@html etsyResponse}</pre>
+							<pre id="json" data-clipboard="pageJson">{@html pageJson}</pre>
 						</div>
 					</card-json>
 				</div>
@@ -542,6 +484,9 @@
 		}
 		& h1 {
 			@apply text-4xl;
+		}
+		& h2 {
+			@apply flex justify-start;
 		}
 		& div {
 			@apply h-64 overflow-y-auto;

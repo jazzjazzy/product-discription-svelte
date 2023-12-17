@@ -13,6 +13,11 @@ export async function load({ url, locals }) {
   // pull payment intent id from the URL query string
   const id = url.searchParams.get('payment_intent')
 
+  console.log(id)
+  if(id === null) {
+    return { message: 'Success! Subscription has been updated.' }
+  }
+
   // ask Stripe for latest info about this paymentIntent
   const paymentIntent = await stripe.paymentIntents.retrieve(id)
 
@@ -25,42 +30,20 @@ export async function load({ url, locals }) {
    * [0] https://stripe.com/docs/payments/payment-methods#payment-notification
    */
   let message
-  //console.log('invoiceIntent', invoiceIntent);
 
-  /*console.log('User', user);
-console.log('customer', customer);
-console.log('subscription', subscription);
-
-await prisma.user.update({
-  where: { id: user.id },
-  data: {
-    stripe_customer_id: customer.id,
-    subscription: {
-      create: {
-        id: user.id,
-        stripe_customer_id: customer.id,
-        stripe_subscription_id: subscription.id,
-        type: subtype,
-        stripe_status: subscription.status,
-        stripe_price_id: pricing.stripe_price_id,
-      },
-    },
-  },
-});
-*/
   switch (paymentIntent.status) {
     case 'succeeded':
       message = 'Success! Payment received.'
 
-        await prisma.subscription.update({
-          where: {
-            stripe_customer_id: paymentIntent.customer,
-          },
-          data: {
-            stripe_status: paymentIntent.status
-          }
-        });
-      
+      await prisma.subscription.update({
+        where: {
+          stripe_customer_id: paymentIntent.customer,
+        },
+        data: {
+          stripe_status: 'active'
+        }
+      });
+
       // TODO: provision account here
 
       break

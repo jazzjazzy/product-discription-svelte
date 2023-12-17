@@ -50,9 +50,12 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
           Pricing: true
         },
         where: {
-          stripe_status: 'succeeded'
+          OR: [
+            { stripe_status: 'succeeded' },
+            { stripe_status: 'active' }
+          ]
         }
-      },
+      }
     }
   });
 
@@ -61,77 +64,95 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
     throw error(500, 'User not found, subscription could not be created');
   }
 
-  if (user?.stripe_customer_id !== null && isupdate === null) {
-    throw redirect(302, '/pricing');
+  // if the user has a stripe customer id and is not updating their subscription
+  // 
+  if (!!user?.stripe_customer_id && isupdate === null) {
+    throw error(302, '/pricing');
   }
 
+  let subscription = null;
+
   if (isupdate !== null) {
-    console.log("subscription", user)
-    const subscription = await stripe.subscriptions.retrieve(user.subscription[0].stripe_subscription_id);
+
+    subscription = await stripe.subscriptions.retrieve(user.subscription[0].stripe_subscription_id);
+
     const newPricing = await getSubscriptionType(isupdate);
 
     if (subscription.status !== 'active') {
       throw error(500, 'Subscription not found, subscription could not be updated')
     }
 
-    stripe.subscriptions.update(
-      'subscription_id',
+    let subupdate = await stripe.subscriptions.update(
+      subscription.id,
       {
-        items: [{
-          id: subscription.items.data[0].id,
-          price: newPricing, // ID of the new price
-        }],
+        items: [
+          {
+            id: subscription.items.data[0].id,
+            price: newPricing?.stripe_price_id,
+          }
+        ],
         // Add other changes here (e.g., `quantity`, `metadata`)
       }
-    );
+    ).then(updatedSubscription => {
+      // Handle the updated subscription
+      //console.log("updatedSubscription", updatedSubscription);
+      return updatedSubscription;
+    }).catch(error => {
+      // Handle any errors
+      console.error("error::", error);
+    });
 
+    console.log("subupdate", subupdate.items.data);
     if (newPricing) {
       await prisma.subscription.update({
         where: {
           stripe_customer_id: user.subscription[0].stripe_customer_id,
         },
         data: {
-          stripe_status: subscription.status,
-          stripe_price_id: newPricing.stripe_price_id,
+          stripe_status: subupdate.status,
+          stripe_price_id: subupdate.plan.id,
+          type: isupdate.toLowerCase(),
         }
       });
+
+      throw redirect(302, '/checkout/complete');
     }
 
+  } else {
+    const customer = await stripe.customers.create({
+      email: user.email,
+      name: user.firstname + ' ' + user.surname,
+    });
+
+    subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price: pricing.stripe_price_id }],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        stripe_customer_id: customer.id,
+        subscription: {
+          create: {
+            stripe_customer_id: customer.id,
+            stripe_subscription_id: subscription.id,
+            type: subtype,
+            stripe_status: subscription.status,
+            stripe_price_id: pricing.stripe_price_id,
+            price_id: pricing.id,
+          },
+        },
+      },
+    });
+    return {
+      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+      returnUrl: new URL('/checkout/complete', DOMAIN).toString(),
+    };
   }
 
 
-  const customer = await stripe.customers.create({
-    email: user.email,
-    name: user.firstname + ' ' + user.surname,
-  });
-
-  const subscription = await stripe.subscriptions.create({
-    customer: customer.id,
-    items: [{ price: pricing.stripe_price_id }],
-    payment_behavior: 'default_incomplete',
-    payment_settings: { save_default_payment_method: 'on_subscription' },
-    expand: ['latest_invoice.payment_intent'],
-  });
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      stripe_customer_id: customer.id,
-      subscription: {
-        create: {
-          stripe_customer_id: customer.id,
-          stripe_subscription_id: subscription.id,
-          type: subtype,
-          stripe_status: subscription.status,
-          stripe_price_id: pricing.stripe_price_id,
-          price_id: pricing.id,
-        },
-      },
-    },
-  });
-
-  return {
-    clientSecret: subscription.latest_invoice.payment_intent.client_secret,
-    returnUrl: new URL('/checkout/complete', DOMAIN).toString(),
-  };
 }

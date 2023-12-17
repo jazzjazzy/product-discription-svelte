@@ -100,7 +100,7 @@ export async function POST({ request }: { request: any }) {
                 " and this description of the product" +
                 productDescription
         },
-    ] as CreateChatCompletionRequestMessage[];
+    ];
 
     const openai = new OpenAI({
         apiKey: key,
@@ -108,12 +108,51 @@ export async function POST({ request }: { request: any }) {
 
     // Ask OpenAI for a streaming chat completion given the prompt
     const response = await openai.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-4-1106-preview',
         stream: true,
-        messages: messages,
+        messages: [
+            {
+                "role": "system",
+                "content": `you are a professional Esty copie writer, writing a summarie description of a product, the customer discribed their store as   ${storeDescription}  you are writing a description of the discribed product used to help a seller. from the description created write a title for etsy of 140 charaters but the first 50 should be about product, images, photography and design as well generate 13 keywords in a comma-separate list and return the description and keyword in a JSON format in a code block with the title in a tag called 'title', the description in a tag called 'description' and the keywords in a tag called 'keywords'`
+            },
+            {
+                "role": "user",
+                "content": `write me a short product description using this description of the image  ${imageDescription} and this description of the product:             ${productDescription}`
+            }
+        ],
+        "functions": [{
+            "name": "generate_product",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "product_title": {
+                                    "type": "string"
+                                },
+                                "product_description": {
+                                    "type": "string"
+                                },
+                                "product_keywords": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["title", "description", "keywords"],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": ["title", "description", "keywords"]
+            }
+        }],
+        "max_tokens": 2000,
     })
     // Convert the response into a friendly text-stream
     const stream = OpenAIStream(response)
+    console.log('stream', stream);
     // Respond with the stream
     return new StreamingTextResponse(stream)
 }

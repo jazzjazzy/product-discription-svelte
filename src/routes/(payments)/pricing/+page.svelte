@@ -16,7 +16,7 @@
 	}
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-{columns} gap-5 w-2/3">
+<div class="grid grid-cols-1md:grid-cols-{columns} gap-5 w-2/3">
 	{#if !!prices}
 		{#each prices as price}
 			<div class="col-span-1 border border-spacing-5">
@@ -45,7 +45,7 @@
 								<!-- show upgrade/downgrade option  -->
 								<a
 									data-sveltekit-reload
-									href="/checkout/payment?subtype={price.name.toLocaleLowerCase()}&update={price.name}"
+									href="/checkout/payment?subtype={currSubscription.toLocaleLowerCase()}&update={price.name}"
 									class="btn variant-ringed-primary rounded-lg">Change to {price.name}</a
 								>
 							{/if}
