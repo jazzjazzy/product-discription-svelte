@@ -1,6 +1,4 @@
 import type { Actions } from './$types';
-import { Storage } from '@google-cloud/storage';
-import { BUCKET_KEY_FILE, BUCKET_NAME, BUCKET_URL, } from '$env/static/private';
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { writeFile } from 'fs/promises';
@@ -8,6 +6,14 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
+/**
+ * varaibles
+ */
+
+
+/***
+ * LOAD
+ */
 
 export const load = (async ({ locals }) => {
   let session = await locals.auth.validate(); // get the session from the auth request
@@ -18,10 +24,11 @@ export const load = (async ({ locals }) => {
   return {};
 }) satisfies PageServerLoad;
 
-const keyObject = JSON.parse(BUCKET_KEY_FILE);
 
-const storage = new Storage({ credentials: keyObject });
-const bucket = storage.bucket(BUCKET_NAME);
+
+/***
+ * ACTIONS
+ */
 
 export const actions: Actions = {
   upload: async ({ cookies, request, locals }) => {

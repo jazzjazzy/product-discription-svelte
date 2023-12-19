@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { formateKeywordstring } from '$lib/helpers/Utilis';
 	import { TabGroup, Tab, AppBar, FileDropzone, ProgressRadial } from '@skeletonlabs/skeleton';
+	import { popup } from '@skeletonlabs/skeleton';
+	import type { PopupSettings } from '@skeletonlabs/skeleton';
 	import Icon from '@iconify/svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
@@ -121,10 +123,18 @@
 		form.submit();
 	}
 
+	/**
+	 * replace new line with break
+	 * @param text
+	 */
 	function newlineToBreak(text: string) {
 		return text.replace(/\n/g, '<br>');
 	}
 
+	/**
+	 * @param {string} url
+	 * @returns {Promise<string>}
+	 */
 	async function discription() {
 		if (loading) return;
 		loading = true;
@@ -158,17 +168,10 @@
 			const firstResult = response.body;
 
 			if (response.status === 200) {
-				console.log(' typeOF', typeof firstResult);
 				const resultsArray = JSON.parse(firstResult);
-				console.log('resultsArray typeOF', typeof resultsArray);
-				console.log('444', resultsArray.results[0]);
 
 				if (resultsArray && resultsArray.results.length > 0) {
 					const firstItem = resultsArray.results[0];
-
-					console.log('product_title', firstItem.product_title);
-					console.log('product_description', firstItem.product_description);
-					console.log('product_keywords', firstItem.product_keywords);
 
 					let title = firstItem.product_title;
 					let description = firstItem.product_description;
@@ -185,6 +188,7 @@
 					pageDescription = description;
 					pageKeywords = keywordsChecked;
 					clearKeywords = keywords;
+					isEditable = true;
 
 					buttonString = 'images Description created successfully.';
 
@@ -213,6 +217,18 @@
 			}
 		);
 	}
+
+	const popupShopInfo: PopupSettings = {
+		event: 'click',
+		target: 'popupShopInfo',
+		placement: 'bottom'
+	};
+
+	const popupProductInfo: PopupSettings = {
+		event: 'click',
+		target: 'popupProductInfo',
+		placement: 'bottom'
+	};
 </script>
 
 <main class="main w-3/4">
@@ -304,7 +320,6 @@
 													placeholder="https:// Enter image url"
 												/><br />
 											</div>
-											textarea
 										</div>
 									</div>
 								{:else if tabSet === 2}
@@ -318,7 +333,22 @@
 					<div class="col-span-1">
 						<div class="card p-3">
 							<div class="card-header pt-0 px-0">
-								<h3 class="pl-3 pb-2 font-semibold text-lg">Shop Description</h3>
+								<h3 class="pl-3 pb-2 font-semibold text-lg">
+									Shop Description
+									<span class="w-2 cursor-pointer" use:popup={popupShopInfo}>
+										<Icon icon="octicon:info-24" class="inline" />
+									</span>
+									<div class="arrow card p-4 w-72 shadow-xl w-full" data-popup="popupShopInfo">
+										<div class="py-3"><h4>Discribe you shop</h4></div>
+										<div class="text-sm">
+											Provide a detailed description of what your shop offers, including the types
+											of products available. The more information you include, the better we can
+											tailor the description to appeal to your target audience. Be sure to mention
+											unique aspects that aren't immediately apparent just by looking at the
+											products.
+										</div>
+									</div>
+								</h3>
 							</div>
 							<div class="card-body">
 								<textarea
@@ -330,7 +360,27 @@
 						</div>
 						<div class="card p-3 mt-3">
 							<div class="card-header pt-0 px-0">
-								<h3 class="pl-3 pb-2 font-semibold text-lg">Product Description</h3>
+								<h3 class="pl-3 pb-2 font-semibold text-lg">
+									Product Description
+									<span class="w-2 cursor-pointer" use:popup={popupProductInfo}>
+										<Icon icon="octicon:info-24" class="inline" />
+									</span>
+									<div class="card p-4 w-72 shadow-xl" data-popup="popupProductInfo">
+										<div class="py-3"><h4>Discribe the Product</h4></div>
+										<div class="text-sm">
+											In your description, focus on highlighting the finer details captured in the
+											image that might not be immediately evident. This includes specifying the
+											materials used in the product, which can give insights into its quality and
+											texture. For example, if it's a wooden item, mention the type of wood and its
+											finish; for a fabric product, describe the fabric type and feel. Additionally,
+											provide accurate measurements or size information to help visualize the actual
+											scale of the product. Such details are essential as they offer a more
+											comprehensive understanding of the product, beyond what is visible in the
+											image. They play a crucial role in setting the right expectations and
+											attracting the right audience who appreciates these nuances.
+										</div>
+									</div>
+								</h3>
 							</div>
 							<div class="card-body">
 								<textarea
@@ -491,5 +541,15 @@
 		& div {
 			@apply h-64 overflow-y-auto;
 		}
+	}
+
+	card-title div:focus-visible,
+	card-description div:focus-visible,
+	card-keywords div:focus-visible,
+	card-json div:focus-visible {
+		outline-color: whitesmoke;
+		outline-style: outset;
+		outline-offset: 1px;
+		outline-width: 1px;
 	}
 </style>
