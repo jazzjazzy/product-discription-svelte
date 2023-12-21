@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import fs from 'fs';
 import path from 'path';
 import { page } from '$app/stores'
+import type { EtsyDescription, chatProductSetting } from '$lib/types/product';
 
 export function encodeImageToBase64(image: String) {
     // Assuming your SvelteKit project root is the current working directory
@@ -11,9 +12,11 @@ export function encodeImageToBase64(image: String) {
     return imageBuffer.toString('base64');
 }
 //TODO this is not being used WHY!!
-export async function getEtsyDescription(storeDiscription: string, productDescription: string, imageDes: string): Promise<any> {
+export async function getEtsyDescription(chat: chatProductSetting, countRetrys = 0): Promise<any> {
 
     try {
+        const maxCountRetrys = 3;
+
         // console.log('storeDiscription', storeDiscription);
         const openai = new OpenAI({
             apiKey: OPENAI_API_KEY,
@@ -21,12 +24,12 @@ export async function getEtsyDescription(storeDiscription: string, productDescri
 
         const chatCompletion = await openai.chat.completions.create({
             "model": "gpt-4-1106-preview",
-            "temperature": 0.1,
+            "temperature": chat.temperature,
             "messages": [
                 {
                     "role": "system",
                     "content": "you are a professional Esty copie writer, writing a summarie description of a product, " +
-                        `the customer discribed their store as ${storeDiscription}  you are writing a description of the discribed ` +
+                        `the customer discribed their store as ${chat.storeDescription}  you are writing a description of the discribed ` +
                         "product used to help a seller. from the description created write a title for etsy of 140 charaters but the " +
                         "first 50 should be about product, images, photography and design as well generate 13 keywords in a comma-separate " +
                         "list and return the description and keyword in a JSON format in a code block with the title in a tag called 'title', " +
@@ -34,8 +37,9 @@ export async function getEtsyDescription(storeDiscription: string, productDescri
                 },
                 {
                     "role": "user",
-                    "content": "write me a whole new short product description using this description of the image " +
-                        ` ${imageDes} and this description of the product ${productDescription}, do not copy the contents of the image description or the product description,`
+                    "content": "write me a whole new product description using this description of the image " +
+                        ` ${chat.imageDescription} and this description of the product ${chat.productDescription}, do not copy the contents of the image description or the product description,` +
+                        `make the discription at least ${chat.charatorCount} charactors long, make it simple and easy to understand, do not try to over sell it`
                 }
             ],
             "functions": [{
@@ -66,15 +70,25 @@ export async function getEtsyDescription(storeDiscription: string, productDescri
                     "required": ["title", "description", "keywords"]
                 }
             }],
-            "max_tokens": 2000
+            "max_tokens": chat.charatorCount
         })
 
-        console.log('chatCompletion', chatCompletion.choices[0].message?.function_call?.arguments);
 
-        return chatCompletion.choices[0].message?.function_call?.arguments
+        const chatCompletionJson = JSON.parse(chatCompletion.choices[0].message?.function_call?.arguments).results[0];
+
+        const currDesciption: EtsyDescription | undefined = chatCompletionJson as EtsyDescription;
+
+        if (!currDesciption || !currDesciption.product_title || !currDesciption.product_description || !currDesciption.product_keywords) {
+            if (countRetrys >= maxCountRetrys) {
+                throw new Error('Too many retrys, attempt canceled');
+            }
+            return getEtsyDescription(chat, countRetrys + 1); // Recursive call with incremented retryCount
+        }
+
+
+        return chatCompletionJson;
     } catch (error) {
-        console.error('OpenAi getEtsyDescription : Error executing script:', error);
-        throw error;
+        return error;
     }
 }
 

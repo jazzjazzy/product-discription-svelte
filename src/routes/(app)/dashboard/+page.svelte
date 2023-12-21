@@ -1,41 +1,43 @@
 <script lang="ts">
 	import { formateKeywordstring } from '$lib/helpers/Utilis';
-	import { TabGroup, Tab, AppBar, FileDropzone, ProgressRadial } from '@skeletonlabs/skeleton';
-	import { popup } from '@skeletonlabs/skeleton';
-	import type { PopupSettings } from '@skeletonlabs/skeleton';
-	import Icon from '@iconify/svelte';
+	import {
+		TabGroup,
+		Tab,
+		AppBar,
+		FileDropzone,
+		ProgressRadial,
+		popup
+	} from '@skeletonlabs/skeleton';
 	import { enhance } from '$app/forms';
-	import { page } from '$app/stores';
-	import type { ActionData } from '$types';
-	import CopyContentToClipBoard from '$lib/components/copyContentToClipBoard.svelte';
+	import type { ActionData, PageData } from './$types';
+	import Icon from '@iconify/svelte';
+	//local components
+	import InputProduct from '$lib/components/dashboard/inputProduct.svelte';
+	import InputStore from '$lib/components/dashboard/inputStore.svelte';
+	import TemperatureSlider from '$lib/components/dashboard/tempSlider.svelte';
+	import TextSizeSlider from '$lib/components/dashboard/textSizeSlider.svelte';
+	import ResultsTitle from '$lib/components/dashboard/results/resultTitle.svelte';
+	import ResultsDescription from '$lib/components/dashboard/results/resultsDescription.svelte';
+	import ResultsKeywords from '$lib/components/dashboard/results/resultKeywords.svelte';
+	import ResultsJson from '$lib/components/dashboard/results/resultJson.svelte';
 
+	export let data: PageData;
 	export let form: ActionData;
 
-	let currentURL = $page.url;
-	console.log(currentURL.origin);
+	console.log('data', data);
 
-	console.log(form);
+	let sessionId = data.session;
+
+	let temperature = 0.2; // Default value for the slider
+	let charatorCount = 500; // Default value for the slider
 
 	let loading = false;
-	let etsyResponse = '';
-	let endStream = false;
-	let error = '';
 
 	let success: boolean = false;
 	let message: string = '';
 	//let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
-	let imageUrl = '';
+	let imageUrl = 'IMG_5150.jpeg';
 	let tabSet: number = 0;
-
-	if (form) {
-		let { success: statusform, message: messageform } = form;
-		if (statusform) {
-			imageUrl = messageform;
-			handleImageTab();
-		}
-		success = statusform;
-		message = messageform;
-	}
 
 	let pageDescription = '';
 	let divDescription: HTMLDivElement;
@@ -63,10 +65,28 @@
 	let storeDescription =
 		'we are a store that sells equipment for board games, dice games and role-playing games, we sell dice towers and dice trays hand-made from exotic wood species ';
 
-	function handleImageTab() {
+	let imageIsUpload = false;
+
+	/**
+	 * isUplaod
+	 *
+	 * @param isUpload true if image is uploaded and false if image is linked
+	 */
+	function handleImageTab(isUpload: boolean) {
 		if (imageUrl) {
 			tabSet = 2;
+			imageIsUpload = isUpload;
 		}
+	}
+
+	if (form) {
+		let { success: statusform, message: messageform } = form;
+		if (statusform) {
+			imageUrl = messageform;
+			handleImageTab(true);
+		}
+		success = statusform;
+		message = messageform;
 	}
 
 	/**
@@ -78,57 +98,9 @@
 	 */
 	let recommendations = [];
 
-	/**
-	 * Count characters on in a static div for Title and Description
-	 * This is used to calulate after finishing processing
-	 */
-	function titleAndDescriptionLength(): void {
-		pageTitleCount = pageTitle.length;
-		pageDescriptionCount = pageDescription.length;
-	}
-
-	/**
-	 * Count characters on editable div for Title and Description
-	 * This is the live count if a user is editing the text
-	 *
-	 * @param event
-	 */
-	function recountTitleAndDescriptionLength(event: Event): void {
-		const target = event.target as HTMLDivElement;
-
-		if (target.dataset.type === 'title') {
-			let title = target.textContent || '';
-			pageTitleCount = title.length;
-		} else if (target.dataset.type === 'description') {
-			console.log(target.textContent);
-			let description = target.textContent || '';
-			pageDescriptionCount = description.length;
-		}
-	}
-
-	/**
-	 * format keywords
-	 *
-	 * @param event
-	 */
-	function checkKeywordLength(event: Event): void {
-		let target = event.target as HTMLDivElement;
-		let editableText = target.textContent || '';
-
-		pageKeywords = formateKeywordstring(editableText, keywordLength);
-	}
-
 	async function handleUpload() {
 		const form = document.getElementById('uploadForm') as HTMLFormElement;
 		form.submit();
-	}
-
-	/**
-	 * replace new line with break
-	 * @param text
-	 */
-	function newlineToBreak(text: string) {
-		return text.replace(/\n/g, '<br>');
 	}
 
 	/**
@@ -139,96 +111,62 @@
 		if (loading) return;
 		loading = true;
 
-		console.log(productDescription);
-
-		let imageDescription: string = '';
+		pageTitle = '';
+		pageDescription = '';
+		pageKeywords = '';
 
 		try {
 			processing = true;
 			buttonString = 'Processing image to Writing Copy...';
 
-			/****
-			 *
-			 * GET IMAGE DESCRIPTION FROM Replicate AI
-			 *
-			 */
 			const responseDisc = await fetch('api/discriptor', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					imageUrl: imageUrl,
-					productDescription: productDescription,
-					storeDescription: storeDescription
+					imageUrl,
+					productDescription,
+					storeDescription,
+					temperature,
+					charatorCount,
+					token: sessionId
 				})
 			});
 
-			let response = await responseDisc.json();
-			const firstResult = response.body;
+			const { status, body } = await responseDisc.json();
+			console.log('body', body.product_title);
+			console.log('status', status);
+			if (status === 200) {
+				//const { results } = JSON.parse(body);
+				const { product_title, product_description, product_keywords } = body;
 
-			if (response.status === 200) {
-				const resultsArray = JSON.parse(firstResult);
+				// count characters for title and description
+				pageDescriptionCount = product_description.length;
+				pageTitleCount = product_title.length;
 
-				if (resultsArray && resultsArray.results.length > 0) {
-					const firstItem = resultsArray.results[0];
+				pageTitle = product_title;
+				pageDescription = product_description;
+				pageKeywords = formateKeywordstring(product_keywords, keywordLength);
+				clearKeywords = product_keywords;
 
-					let title = firstItem.product_title;
-					let description = firstItem.product_description;
-					let keywords = firstItem.product_keywords;
-					pageJson = JSON.stringify(firstItem, null, 4);
+				pageJson = JSON.stringify(body, null, 4);
 
-					//check if all keywords are less than 20 characters .and mark the ones that are not
-					const keywordsChecked = formateKeywordstring(keywords, keywordLength);
+				//set to editable as we have a result
+				isEditable = true;
 
-					pageDescriptionCount = description.length;
-					pageTitleCount = title.length;
-
-					pageTitle = title;
-					pageDescription = description;
-					pageKeywords = keywordsChecked;
-					clearKeywords = keywords;
-					isEditable = true;
-
-					buttonString = 'images Description created successfully.';
-
-					console.log('Description created successfully.');
-				} else {
-					console.log('No results found or results array is empty');
-				}
+				buttonString = 'images Description created successfully.';
+				console.log('Description created successfully.');
 			}
 
 			loading = false;
 		} catch (error) {
 			console.error('Error Description script:', error);
 		}
+
 		processing = false;
 		buttonString = 'Write New Copy';
 	}
-
-	function copyToClipboard(divElement: HTMLDivElement) {
-		const content = divElement.innerText;
-		navigator.clipboard.writeText(content).then(
-			function () {
-				console.log('Successfully copied to clipboard!');
-			},
-			function (err) {
-				console.error('Unable to copy', err);
-			}
-		);
-	}
-
-	const popupShopInfo: PopupSettings = {
-		event: 'click',
-		target: 'popupShopInfo',
-		placement: 'bottom'
-	};
-
-	const popupProductInfo: PopupSettings = {
-		event: 'click',
-		target: 'popupProductInfo',
-		placement: 'bottom'
-	};
 </script>
 
 <main class="main w-3/4">
@@ -316,7 +254,7 @@
 													type="text"
 													class="w-full mt-3 px-3 rounded-lg border-sky-100 border-black"
 													bind:value={imageUrl}
-													on:input={handleImageTab}
+													on:input={handleImageTab(false)}
 													placeholder="https:// Enter image url"
 												/><br />
 											</div>
@@ -324,70 +262,26 @@
 									</div>
 								{:else if tabSet === 2}
 									{#if imageUrl !== ''}
-										<img src="/uploads/{imageUrl}" alt="original" />
+										{#if imageIsUpload}
+											<img src="/uploads/{imageUrl}" alt="original" />
+										{:else if imageUrl.includes('http')}
+											<img src={imageUrl} alt="original" />
+										{/if}
 									{/if}
 								{/if}
 							</svelte:fragment>
 						</TabGroup>
 					</div>
 					<div class="col-span-1">
-						<div class="card p-3">
-							<div class="card-header pt-0 px-0">
-								<h3 class="pl-3 pb-2 font-semibold text-lg">
-									Shop Description
-									<span class="w-2 cursor-pointer" use:popup={popupShopInfo}>
-										<Icon icon="octicon:info-24" class="inline" />
-									</span>
-									<div class="arrow card p-4 w-72 shadow-xl w-full" data-popup="popupShopInfo">
-										<div class="py-3"><h4>Discribe you shop</h4></div>
-										<div class="text-sm">
-											Provide a detailed description of what your shop offers, including the types
-											of products available. The more information you include, the better we can
-											tailor the description to appeal to your target audience. Be sure to mention
-											unique aspects that aren't immediately apparent just by looking at the
-											products.
-										</div>
-									</div>
-								</h3>
+						<InputStore {storeDescription} />
+						<InputProduct {productDescription} />
+
+						<div class="grid grid-cols-2">
+							<div class="col-span-1 p-3 slider-container">
+								<TemperatureSlider {temperature} />
 							</div>
-							<div class="card-body">
-								<textarea
-									bind:value={storeDescription}
-									placeholder="Discribe your shop and what you sell here..."
-									class="w-full h-36 p-1 bg-gray-200 border-gray-300 focus:border-gray-400 focus:outline-0 focus:ring-1 rounded-xl"
-								/>
-							</div>
-						</div>
-						<div class="card p-3 mt-3">
-							<div class="card-header pt-0 px-0">
-								<h3 class="pl-3 pb-2 font-semibold text-lg">
-									Product Description
-									<span class="w-2 cursor-pointer" use:popup={popupProductInfo}>
-										<Icon icon="octicon:info-24" class="inline" />
-									</span>
-									<div class="card p-4 w-72 shadow-xl" data-popup="popupProductInfo">
-										<div class="py-3"><h4>Discribe the Product</h4></div>
-										<div class="text-sm">
-											In your description, focus on highlighting the finer details captured in the
-											image that might not be immediately evident. This includes specifying the
-											materials used in the product, which can give insights into its quality and
-											texture. For example, if it's a wooden item, mention the type of wood and its
-											finish; for a fabric product, describe the fabric type and feel. Additionally,
-											provide accurate measurements or size information to help visualize the actual
-											scale of the product. Such details are essential as they offer a more
-											comprehensive understanding of the product, beyond what is visible in the
-											image. They play a crucial role in setting the right expectations and
-											attracting the right audience who appreciates these nuances.
-										</div>
-									</div>
-								</h3>
-							</div>
-							<div class="card-body">
-								<textarea
-									bind:value={productDescription}
-									placeholder="Discribe the product in the image here..."
-									class="w-full h-36 p-1 bg-gray-200 border-gray-300 focus:border-gray-400 focus:outline-0 focus:ring-1 rounded-xl"
-								/>
+							<div class="col-span-1 p-3 slider-container">
+								<TextSizeSlider {charatorCount} />
 							</div>
 						</div>
 					</div>
@@ -408,112 +302,21 @@
 						</button>
 					</div>
 					<card-title>
-						<AppBar
-							padding="0"
-							gridColumns="grid-cols-2"
-							slotDefault="place-self-left"
-							slotTrail="place-content-end"
-						>
-							<h2 class="flex justify-start text-2xl">Title</h2>
-							<svelte:fragment slot="trail">
-								{#if isEditable}
-									<CopyContentToClipBoard element="pageTitle" />
-								{/if}
-							</svelte:fragment>
-						</AppBar>
-						<h1>
-							<div
-								bind:this={divTitle}
-								class="w-full p-3"
-								contenteditable={isEditable}
-								on:input={recountTitleAndDescriptionLength}
-								data-type="title"
-								data-clipboard="pageTitle"
-							>
-								{@html pageTitle}
-							</div>
-						</h1>
-						<div class="text-xs float-right text-red-500">
-							{#if pageTitleCount > 0}
-								{pageTitleCount}
-							{/if}
-						</div>
+						<ResultsTitle {isEditable} {divTitle} {pageTitle} {pageTitleCount} />
 					</card-title>
 					<card-description>
-						<AppBar
-							padding="0"
-							gridColumns="grid-cols-2"
-							slotDefault="place-self-left"
-							slotTrail="place-content-end"
-						>
-							<h2 class="flex justify-start text-2xl">Description</h2>
-							<svelte:fragment slot="trail">
-								{#if isEditable}
-									<CopyContentToClipBoard element="pageDescription" />
-								{/if}
-							</svelte:fragment>
-						</AppBar>
-						<div
-							bind:this={divDescription}
-							class="w-full p-3"
-							contenteditable={isEditable}
-							on:input={recountTitleAndDescriptionLength}
-							data-type="description"
-							data-clipboard="pageDescription"
-						>
-							{@html newlineToBreak(pageDescription)}
-						</div>
-						<div class="text-xs float-right text-red-500">
-							{#if pageDescriptionCount > 0}
-								{@html pageDescriptionCount}
-							{/if}
-						</div>
+						<ResultsDescription
+							{isEditable}
+							{divDescription}
+							{pageDescription}
+							{pageDescriptionCount}
+						/>
 					</card-description>
-
 					<card-keywords>
-						<AppBar
-							padding="0"
-							gridColumns="grid-cols-2"
-							slotDefault="place-self-left"
-							slotTrail="place-content-end"
-						>
-							<h2 class="flex justify-start text-2xl">Keywords</h2>
-							<svelte:fragment slot="trail">
-								{#if isEditable}
-									<CopyContentToClipBoard element="pageKeywords" />
-								{/if}
-							</svelte:fragment>
-						</AppBar>
-						<div
-							bind:this={divKeywords}
-							class="w-full p-3"
-							contenteditable={isEditable}
-							on:blur={checkKeywordLength}
-						>
-							{@html pageKeywords}
-						</div>
-						<div class="hidden" data-clipboard="pageKeywords">
-							{@html clearKeywords}
-						</div>
+						<ResultsKeywords {isEditable} {divKeywords} {pageKeywords} {clearKeywords} />
 					</card-keywords>
-
 					<card-json>
-						<AppBar
-							padding="0"
-							gridColumns="grid-cols-2"
-							slotDefault="place-self-left"
-							slotTrail="place-content-end"
-						>
-							<h2 class="flex justify-start text-2xl">Json output</h2>
-							<svelte:fragment slot="trail">
-								{#if isEditable}
-									<copyContentToClipBoard element="pageJson" />
-								{/if}
-							</svelte:fragment>
-						</AppBar>
-						<div class="w-full p-3">
-							<pre id="json" data-clipboard="pageJson">{@html pageJson}</pre>
-						</div>
+						<ResultsJson {isEditable} {pageJson} />
 					</card-json>
 				</div>
 			</div>

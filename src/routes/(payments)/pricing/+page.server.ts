@@ -1,26 +1,17 @@
 import type { PageServerLoad } from './$types';
 import type { Pricing } from '$lib/types/subscription';
 import prisma from '$lib/server/prisma';
+import { auth } from '$lib/server/lucia';
 
 export const load = (async ({ locals }) => {
     const session = await locals.auth.validate();
+    console.log('session', session);
+
     let currSubscription = null;
 
     if (!!session) {
-        let user = await prisma.user.findUnique({
-            where: { id: session.user.userId },
-            include: {
-                subscription: {
-                    include: {
-                        Pricing: true
-                    }
-                },
-            }
-        });
-
-        if (user?.subscription[0]) {
-            currSubscription = user?.subscription[0]?.Pricing?.name;
-        }
+        // get the current login subscription name
+        currSubscription = session.plan;
     }
 
     const prices: Pricing[] = await getPricingData();

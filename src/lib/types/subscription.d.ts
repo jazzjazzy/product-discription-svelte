@@ -2,12 +2,12 @@ import type { User } from './user';
 
 export type Pricing = {
     id: string;
-    name: String;
-    price: Number;
-    description?: String;
+    name: string;
+    price: number;
+    description?: string;
     list: string;
-    stripe_price_id: String;
-    visable: Boolean;
+    stripe_price_id: string;
+    visable: boolean;
     created_at: Date;
     updated_at: Date;
     deleted_at?: Date;
@@ -15,14 +15,14 @@ export type Pricing = {
 }
 
 export type Subscription = {
-    id: String;
-    type: String;
-    user_id: String;
-    price_id: String;
-    stripe_subscription_id: String;
-    stripe_status: String;
-    stripe_price_id: String;
-    stripe_customer_id: String;
+    id: string;
+    type: string;
+    user_id: string;
+    price_id: string;
+    stripe_subscription_id: string;
+    stripe_status: string;
+    stripe_price_id: string;
+    stripe_customer_id: string;
     created_at: Date;
     updated_at: Date;
     deleted_at?: Date;

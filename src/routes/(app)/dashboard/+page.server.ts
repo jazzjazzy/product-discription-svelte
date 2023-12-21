@@ -21,7 +21,9 @@ export const load = (async ({ locals }) => {
     throw redirect(302, '/login');
   }
 
-  return {};
+  return {
+    session: session.sessionId
+  };
 }) satisfies PageServerLoad;
 
 
@@ -31,7 +33,7 @@ export const load = (async ({ locals }) => {
  */
 
 export const actions: Actions = {
-  upload: async ({ cookies, request, locals }) => {
+  upload: async ({ request }) => {
   
     const data = await request.formData();
     const file = data.get('file') as File; // value of 'name' attribute of input
@@ -68,7 +70,8 @@ export const actions: Actions = {
 
       let filename = (outputPath).split('/').pop();
 
-      const convertedBuffer = await sharp(inputtfile)
+      //convert file to jpg
+      await sharp(inputtfile)
         .toFormat('jpeg')
         .toFile(outputPath, (err, info) => {
           if (err) {
@@ -77,6 +80,8 @@ export const actions: Actions = {
             return { status: true, body: { message: 'File converted successfully:', info: info } }
           }
         });
+
+        
 
       return { status: true, message: filename };
     }

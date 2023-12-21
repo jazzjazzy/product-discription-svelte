@@ -4,7 +4,7 @@
 	 *
 	 * @description
 	 * This component is used to copy content to the clipboard.
-     * 
+	 *
 	 * @props element: string - the div that we a copying from, should match data-clipboard value
 	 */
 	import { clipboard } from '@skeletonlabs/skeleton';
@@ -28,7 +28,7 @@
 {#if canCopying}
 	<div>
 		<button use:clipboard={{ element: element }} on:click={() => handelCopy()}>
-			<Icon icon="ph:copy-fill" class="text-2xl" />
+			<Icon icon="ph:clipboard-text-fill" class="text-2xl" />
 		</button>
 	</div>
 {:else}

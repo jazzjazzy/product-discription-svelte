@@ -76,6 +76,7 @@
 		"bcrypt": "^5.1.1",
 		"langchain": "^0.0.102",
 		"lucia": "^2.7.4",
+		"lucia-sveltekit": "^0.14.3",
 		"moment": "^2.29.4",
 		"openai": "^4.1.0",
 		"replicate": "^0.9.3",

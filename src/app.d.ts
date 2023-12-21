@@ -18,8 +18,12 @@ declare global {
 			surname: string;
 			stripe_customer_id: string;
 		};
-		type DatabaseSessionAttributes = object;
-	}
+		type DatabaseSessionAttributes = {
+			plan?: string;
+			role?: string;
+			subscribed: boolean;
+		};
+	};
 }
 
 export { };
