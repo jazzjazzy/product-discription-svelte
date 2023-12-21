@@ -1,21 +1,14 @@
 <script lang="ts">
 	import { formateKeywordstring } from '$lib/helpers/Utilis';
-	import {
-		TabGroup,
-		Tab,
-		AppBar,
-		FileDropzone,
-		ProgressRadial,
-		popup
-	} from '@skeletonlabs/skeleton';
+	import {TabGroup,Tab,FileDropzone,ProgressRadial} from '@skeletonlabs/skeleton';
 	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 	import Icon from '@iconify/svelte';
 	//local components
-	import InputProduct from '$lib/components/dashboard/inputProduct.svelte';
-	import InputStore from '$lib/components/dashboard/inputStore.svelte';
-	import TemperatureSlider from '$lib/components/dashboard/tempSlider.svelte';
-	import TextSizeSlider from '$lib/components/dashboard/textSizeSlider.svelte';
+	import InputProduct from '$lib/components/dashboard/inputs/inputProduct.svelte';
+	import InputStore from '$lib/components/dashboard/inputs/inputStore.svelte';
+	import TemperatureSlider from '$lib/components/dashboard/inputs/tempSlider.svelte';
+	import TextSizeSlider from '$lib/components/dashboard/inputs/textSizeSlider.svelte';
 	import ResultsTitle from '$lib/components/dashboard/results/resultTitle.svelte';
 	import ResultsDescription from '$lib/components/dashboard/results/resultsDescription.svelte';
 	import ResultsKeywords from '$lib/components/dashboard/results/resultKeywords.svelte';
@@ -107,7 +100,7 @@
 	 * @param {string} url
 	 * @returns {Promise<string>}
 	 */
-	async function discription() {
+	async function generateProductDiscription() {
 		if (loading) return;
 		loading = true;
 
@@ -135,8 +128,7 @@
 			});
 
 			const { status, body } = await responseDisc.json();
-			console.log('body', body.product_title);
-			console.log('status', status);
+
 			if (status === 200) {
 				//const { results } = JSON.parse(body);
 				const { product_title, product_description, product_keywords } = body;
@@ -289,7 +281,7 @@
 
 				<div class="w-full">
 					<div class="flex justify-center">
-						<button class="btn variant-filled my-2 w-4/6 text-fuchsia-400" on:click={discription}>
+						<button class="btn variant-filled my-2 w-4/6 text-fuchsia-400" on:click={generateProductDiscription}>
 							{buttonString}
 							{#if processing}
 								<ProgressRadial

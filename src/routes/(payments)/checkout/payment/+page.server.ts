@@ -2,7 +2,7 @@ import { stripe } from '$lib/server/stripe';
 import { DOMAIN } from '$env/static/private';
 import prisma from '$lib/server/prisma';
 import type { User as PrismaUser } from '$lib/types/user';
-import type {Subscription} from '$lib/types/subscription';
+import type { Subscription } from '$lib/types/subscription';
 import { redirect, error } from '@sveltejs/kit';
 
 /**
@@ -66,129 +66,129 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
       clientSecret: subscription.latest_invoice.payment_intent.client_secret,
       returnUrl: new URL('/checkout/complete', DOMAIN).toString(),
     };
-}
-
-
-/**
- * Retrieves the pricing details for a given subscription type.
- * @param subtype The subscription type.
- * @returns The pricing details.
- */
-async function getSubscriptionType(subtype: string) {
-  return prisma.pricing.findFirst({
-    where: { name: subtype },
-  });
-}
-
-/**
- * update or change a subscription
- * 
- * @param userSubscription 
- * @param isupdate 
- */
-
-async function changeSubscription(userSubscription: Subscription, isupdate: string) {
-  let subscription = await stripe.subscriptions.retrieve(userSubscription.stripe_subscription_id);
-
-  const newPricing = await getSubscriptionType(isupdate);
-
-  if (subscription.status !== 'active') {
-    throw error(500, 'Subscription not found, subscription could not be updated')
   }
 
-  let subupdate = await stripe.subscriptions.update(
-    subscription.id,
-    {
-      items: [
-        {
-          id: subscription.items.data[0].id,
-          price: newPricing?.stripe_price_id,
-        }
-      ],
-      // Add other changes here (e.g., `quantity`, `metadata`)
+
+  /**
+   * Retrieves the pricing details for a given subscription type.
+   * @param subtype The subscription type.
+   * @returns The pricing details.
+   */
+  async function getSubscriptionType(subtype: string) {
+    return prisma.pricing.findFirst({
+      where: { name: subtype },
+    });
+  }
+
+  /**
+   * update or change a subscription
+   * 
+   * @param userSubscription 
+   * @param isupdate 
+   */
+
+  async function changeSubscription(userSubscription: Subscription, isupdate: string) {
+    let subscription = await stripe.subscriptions.retrieve(userSubscription.stripe_subscription_id);
+
+    const newPricing = await getSubscriptionType(isupdate);
+
+    if (subscription.status !== 'active') {
+      throw error(500, 'Subscription not found, subscription could not be updated')
     }
-  ).then(updatedSubscription => {
-    // Handle the updated subscription
-    return updatedSubscription;
-  }).catch(error => {
-    // Handle any errors
-    console.error("error::", error);
-  });
 
-  if (newPricing) {
-    await prisma.subscription.update({
-      where: {
-        stripe_customer_id: userSubscription.stripe_customer_id,
-      },
-      data: {
-        stripe_status: subupdate.status,
-        stripe_price_id: subupdate.plan.id,
-        type: isupdate.toLowerCase(),
+    let subupdate = await stripe.subscriptions.update(
+      subscription.id,
+      {
+        items: [
+          {
+            id: subscription.items.data[0].id,
+            price: newPricing?.stripe_price_id,
+          }
+        ],
+        // Add other changes here (e.g., `quantity`, `metadata`)
       }
+    ).then(updatedSubscription => {
+      // Handle the updated subscription
+      return updatedSubscription;
+    }).catch(error => {
+      // Handle any errors
+      console.error("error::", error);
     });
-    throw redirect(302, '/checkout/complete');
+
+    if (newPricing) {
+      await prisma.subscription.update({
+        where: {
+          stripe_customer_id: userSubscription.stripe_customer_id,
+        },
+        data: {
+          stripe_status: subupdate.status,
+          stripe_price_id: subupdate.plan.id,
+          type: isupdate.toLowerCase(),
+        }
+      });
+      throw redirect(302, '/checkout/complete');
+    }
   }
-}
 
 
-/**
- * add a new subscription
- * 
- * @param user 
- * @param subtype 
- * @param pricing 
- */
+  /**
+   * add a new subscription
+   * 
+   * @param user 
+   * @param subtype 
+   * @param pricing 
+   */
 
-async function addSubscription(user : PrismaUser, subtype: string , pricing: Pricing){
-  let customerId = null;
+  async function addSubscription(user: PrismaUser, subtype: string, pricing: Pricing) {
+    let customerId = null;
 
-  if (!!user.stripe_customer_id) {
-    customerId = user.stripe_customer_id
-  } else {
-    const customer = await stripe.customers.create({
-      email: user.email,
-      name: user.firstname + ' ' + user.surname,
+    if (!!user.stripe_customer_id) {
+      customerId = user.stripe_customer_id
+    } else {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.firstname + ' ' + user.surname,
+      });
+      customerId = customer.id;
+    }
+    subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: pricing.stripe_price_id }],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
     });
-    customerId = customer.id;
-  }
-  subscription = await stripe.subscriptions.create({
-    customer: customerId,
-    items: [{ price: pricing.stripe_price_id }],
-    payment_behavior: 'default_incomplete',
-    payment_settings: { save_default_payment_method: 'on_subscription' },
-    expand: ['latest_invoice.payment_intent'],
-  });
 
-  //if wwe have a subscription that is incomplete update it
-  if (user.subscription.length > 0 && user.subscription[0].stripe_status === 'incomplete') {
-    await prisma.subscription.update({
-      data: {
-        stripe_subscription_id: subscription.id,
-        type: subtype,
-        stripe_status: subscription.status,
-        stripe_price_id: pricing.stripe_price_id,
-        price_id: pricing.id,
-      },
-      where: { id: user.subscription[0].id }
-    });
-  } else {
-    //add a subscription to the user
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        stripe_customer_id: customerId,
-        subscription: {
-          create: {
-            stripe_customer_id: customerId,
-            stripe_subscription_id: subscription.id,
-            type: subtype,
-            stripe_status: subscription.status,
-            stripe_price_id: pricing.stripe_price_id,
-            price_id: pricing.id,
+    //if wwe have a subscription that is incomplete update it
+    if (user.subscription.length > 0 && user.subscription[0].stripe_status === 'incomplete') {
+      await prisma.subscription.update({
+        data: {
+          stripe_subscription_id: subscription.id,
+          type: subtype,
+          stripe_status: subscription.status,
+          stripe_price_id: pricing.stripe_price_id,
+          price_id: pricing.id,
+        },
+        where: { id: user.subscription[0].id }
+      });
+    } else {
+      //add a subscription to the user
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          stripe_customer_id: customerId,
+          subscription: {
+            create: {
+              stripe_customer_id: customerId,
+              stripe_subscription_id: subscription.id,
+              type: subtype,
+              stripe_status: subscription.status,
+              stripe_price_id: pricing.stripe_price_id,
+              price_id: pricing.id,
+            },
           },
         },
-      },
-    });
+      });
+    }
   }
 }
-
