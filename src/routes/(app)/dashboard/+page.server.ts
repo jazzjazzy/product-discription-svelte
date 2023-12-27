@@ -17,10 +17,8 @@ import sharp from 'sharp';
 
 export const load = (async ({ locals }) => {
   let session = await locals.auth.validate(); // get the session from the auth request
-  if (!session) {
-    throw redirect(302, '/login');
-  }
 
+  // we need the session id to send as part of api/discriptor request so we can get the user id on the sever side
   return {
     session: session.sessionId
   };

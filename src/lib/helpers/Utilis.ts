@@ -18,13 +18,11 @@ export function formateKeywordstring(keywords: string, size: number): string {
     let keyList: string[] = keywordsCleaned.split(',');
     let revisedKeyword: string[] = [];
     for (const key of keyList) {
-        console.log('key', key, key.length);
         if (key.length > size) {
-            console.log('keywordrevised', key);
-            let keyword = `<span class="badge variant-filled text-white bg-red-600">${key}</span>`;
+            let keyword = `<span class="badge variant-filled text-white bg-red-600 rounded-lg">${key}</span>`;
             revisedKeyword.push(keyword);
         } else {
-            let keyword = `<span class="badge variant-filled text-black bg-gray-300">${key}</span>`;
+            let keyword = key;
             revisedKeyword.push(keyword);
         }
     }

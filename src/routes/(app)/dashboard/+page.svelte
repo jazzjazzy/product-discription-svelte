@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { formateKeywordstring } from '$lib/helpers/Utilis';
-	import {TabGroup,Tab,FileDropzone,ProgressRadial} from '@skeletonlabs/skeleton';
+	import { TabGroup, Tab, FileDropzone, ProgressRadial } from '@skeletonlabs/skeleton';
 	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 	import Icon from '@iconify/svelte';
@@ -17,8 +17,6 @@
 	export let data: PageData;
 	export let form: ActionData;
 
-	console.log('data', data);
-
 	let sessionId = data.session;
 
 	let temperature = 0.2; // Default value for the slider
@@ -28,7 +26,7 @@
 
 	let success: boolean = false;
 	let message: string = '';
-	//let imageUrl = 'https://storage.googleapis.com/imagebackdrop/bedroom/IMG_5150.JPG';
+
 	let imageUrl = 'IMG_5150.jpeg';
 	let tabSet: number = 0;
 
@@ -107,6 +105,7 @@
 		pageTitle = '';
 		pageDescription = '';
 		pageKeywords = '';
+		pageJson = '';
 
 		try {
 			processing = true;
@@ -161,8 +160,8 @@
 	}
 </script>
 
-<main class="main w-3/4">
-	<div class="p-7">
+<main class="main">
+	<div class="px-7">
 		<div class="card">
 			<div class="card-header p-6 mb-6 border-b-orange-500 border-b-2">
 				<h1 class="text-4xl">Esty Assistant</h1>
@@ -281,7 +280,10 @@
 
 				<div class="w-full">
 					<div class="flex justify-center">
-						<button class="btn variant-filled my-2 w-4/6 text-fuchsia-400" on:click={generateProductDiscription}>
+						<button
+							class="btn variant-filled my-2 w-4/6 text-fuchsia-400"
+							on:click={generateProductDiscription}
+						>
 							{buttonString}
 							{#if processing}
 								<ProgressRadial
@@ -323,7 +325,7 @@
 	card-json {
 		display: block;
 		border: 1px solid #ccc;
-		@apply m-3 p-3 overflow-y-auto;
+		@apply m-3 overflow-y-auto p-3;
 		& h3 {
 			@apply text-2xl;
 		}

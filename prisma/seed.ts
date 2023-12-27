@@ -10,25 +10,41 @@ async function main() {
                 {
                     name: 'Nano',
                     price: 10,
-                    description: 'Nano description',
-                    list:'["5 discription per month"]',
-                    stripe_price_id: 'price_1OLzXoHOzYU2TTIbihGTlELa',
+                    description: `The Nano account is expertly designed for individuals or businesses who find themselves updating their products only a few times each month. This account type is ideal for those who require a no-frills, straightforward service without the need for extensive daily updates.`,
+                    list: `[
+                        "5 discription per month",
+                        "Basic to creative style writing", 
+                        "Small medium and large text length"
+                        ]`,
+                    stripe_price_id: 'price_1ONkrkHOzYU2TTIbKBzYvMPu',
                     visable: true,
                 },
                 {
                     name: 'Pro',
                     price: 60,
-                    description: 'Pro description',
-                    list:'["50 discription per month"]',
-                    stripe_price_id: 'price_1OM1yjHOzYU2TTIbQvRaAObC',
+                    description: `The Pro account is the ultimate solution for businesses and power users who require frequent updates and a comprehensive set of features. It's ideal for those who actively manage a large product catalog or constantly evolve their service offerings.`,
+                    list: `[
+                        "50 discription per month", 
+                        "Basic to creative style writing", 
+                        "Small medium and large text length",
+                        "A history of all your descriptions",
+                        "Generated long tail keywords"
+                        ]`,
+                    stripe_price_id: 'price_1ONkrLHOzYU2TTIbRKXPpHLm',
                     visable: true,
                 },
                 {
                     name: 'Ultra',
                     price: 180,
-                    description: 'Ultra description',
-                    list:'["unlimited discription per month"]',
-                    stripe_price_id: 'price_1OM1zMHOzYU2TTIbf612EefY',
+                    description: `The Ultra account is our most powerful offering, designed for those who demand the utmost in terms of capabilities and flexibility. It's the perfect solution for large enterprises, high-traffic e-commerce sites, and businesses that require the highest level of performance and unlimited resources.`,
+                    list: `[
+                        "Unlimited discription per month",
+                        "Basic to creative style writing", 
+                        "Small medium and large text length",
+                        "A history of all your descriptions",
+                        "Generated long tail keywords"
+                        ]`,
+                    stripe_price_id: 'price_1ONkqrHOzYU2TTIbJsgW4hcu',
                     visable: true,
                 },
             ],

@@ -21,6 +21,7 @@ export const auth = lucia({
 
 	getSessionAttributes: (dataAttr: SessionSchema) => {
 		return {
+			name: dataAttr.name,
 			plan: dataAttr.plan,
 			role: dataAttr.role,
 			subscribed: dataAttr.subscribed

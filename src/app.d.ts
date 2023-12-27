@@ -14,11 +14,10 @@ declare global {
 		type Auth = import("$lib/server/lucia").Auth;
 		type DatabaseUserAttributes = {
 			email: string;
-			firstname: string;
-			surname: string;
-			stripe_customer_id: string;
+			username: string;
 		};
 		type DatabaseSessionAttributes = {
+			name: string;
 			plan?: string;
 			role?: string;
 			subscribed: boolean;
