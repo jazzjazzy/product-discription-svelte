@@ -339,14 +339,4 @@
 			@apply h-64 overflow-y-auto;
 		}
 	}
-
-	card-title div:focus-visible,
-	card-description div:focus-visible,
-	card-keywords div:focus-visible,
-	card-json div:focus-visible {
-		outline-color: whitesmoke;
-		outline-style: outset;
-		outline-offset: 1px;
-		outline-width: 1px;
-	}
 </style>

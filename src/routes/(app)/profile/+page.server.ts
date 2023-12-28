@@ -4,8 +4,7 @@ import { redirect } from '@sveltejs/kit';
 import prisma from '$lib/server/prisma';
 import { auth } from '$lib/server/lucia';
 import { stripe } from '$lib/server/stripe';
-import { LuciaError } from '$lib/server/lucia';
-import { string } from 'zod';
+
 
 export const load = (async ({ locals }) => {
 
@@ -34,13 +33,8 @@ export const actions = {
         const newPassword = form.get('newpassword');
         const confirmPassword = form.get('confirmpassword');
 
-        console.log("form", form)
 
-        console.log("oldPassword", oldPassword)
-        console.log("newPassword", newPassword)
-        console.log("confirmPassword", confirmPassword)
-
-        if(!!oldPassword || !!newPassword || !!confirmPassword){
+        if (!!oldPassword || !!newPassword || !!confirmPassword) {
             return {
                 status: 411,
                 body: {
@@ -90,7 +84,7 @@ export const actions = {
 
         return {
             status: 200,
-            body: { error: 'Password Reset' }
+            body: { message: 'Password Reset' }
         };
 
     },
@@ -115,9 +109,9 @@ export const actions = {
                 body: { error: 'User Subscription not found.' }
             };
         }
-        console.log("user Subscription", user?.subscription[0]?.stripe_subscription_id)
+
         let deletedSubscription = await cancelSubscription(user?.subscription[0]?.stripe_subscription_id)
-        console.log("deletedSubscription", deletedSubscription)
+
         return {
             status: 200,
             body: deletedSubscription
@@ -126,6 +120,52 @@ export const actions = {
     },
     deleteAccount: async ({ request, locals }) => {
 
+    },
+    updateUser: async ({ request, locals }) => {
+        const session = await locals.auth.validate();
+        const form = await request.formData();
+
+        //todo: add ZOD, being lazy and not using ZOD to check if the form is valid
+        const firstname = form.get('firstname')
+        const surname = form.get('surname')
+        const email = form.get('email')
+
+        console.log("session", session)
+
+        try {
+            await auth.updateUserAttributes(
+                session.user.userId,
+                {
+                    firstname: firstname,
+                    surname: surname,
+                    email: email,
+                }
+            )
+
+            console.log("session.user.login", session.user.login)
+            console.log("email", email)
+            
+            //TODO: NEED TO FIND A WAY TO update email key
+           // await auth.deleteKey("email", session.user.login)
+           // await auth.createKey("email", form.get('email'), session.user.login )
+
+            const sessionNew = await auth.updateSessionAttributes(
+                session.sessionId,
+                {
+                    name: `${firstname} ${surname}`,
+                }
+            )
+            locals.auth.setSession(sessionNew);
+        } catch (e) {
+            console.error(e)
+            return {
+                status: 411,
+                body: {
+                    error: e.message,
+                    errorType: "updateprofile"
+                }
+            };
+        }
     }
 }
 
