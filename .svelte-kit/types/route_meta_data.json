@@ -1,0 +1,106 @@
+{
+	"/(app)": [
+		"src/routes/+layout.server.ts"
+	],
+	"/": [
+		"src/routes/+page.server.ts",
+		"src/routes/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin": [
+		"src/routes/admin/+page.server.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/history/[[id]]": [
+		"src/routes/admin/history/[[id]]/+page.server.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/pricing/[[id]]": [
+		"src/routes/admin/pricing/[[id]]/+page.server.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/session/[[id]]": [
+		"src/routes/admin/session/[[id]]/+page.server.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/admin/user/[[id]]": [
+		"src/routes/admin/user/[[id]]/+page.server.ts",
+		"src/routes/admin/+layout.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/api/admin/history": [
+		"src/routes/api/admin/history/+server.ts"
+	],
+	"/api/admin/pricing": [
+		"src/routes/api/admin/pricing/+server.ts"
+	],
+	"/api/admin/sessions": [
+		"src/routes/api/admin/sessions/+server.ts"
+	],
+	"/api/admin/users": [
+		"src/routes/api/admin/users/+server.ts"
+	],
+	"/api/discriptor": [
+		"src/routes/api/discriptor/+server.ts"
+	],
+	"/api/replicate/image/etsy": [
+		"src/routes/api/replicate/image/etsy/+server.ts"
+	],
+	"/api/replicate/minigpt4": [
+		"src/routes/api/replicate/minigpt4/+server.ts"
+	],
+	"/(app)/(payments)/checkout": [
+		"src/routes/(app)/(payments)/checkout/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/(payments)/checkout/complete": [
+		"src/routes/(app)/(payments)/checkout/complete/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/(payments)/checkout/payment": [
+		"src/routes/(app)/(payments)/checkout/payment/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/dashboard": [
+		"src/routes/(app)/dashboard/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/(auth)/forgotten": [
+		"src/routes/(app)/(auth)/forgotten/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/(auth)/login": [
+		"src/routes/(app)/(auth)/login/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/(auth)/login/facebook": [
+		"src/routes/(app)/(auth)/login/facebook/+server.ts"
+	],
+	"/(app)/(auth)/login/facebook/callback": [
+		"src/routes/(app)/(auth)/login/facebook/callback/+server.ts"
+	],
+	"/(app)/(auth)/login/google": [
+		"src/routes/(app)/(auth)/login/google/+server.ts"
+	],
+	"/(app)/(auth)/login/google/callback": [
+		"src/routes/(app)/(auth)/login/google/callback/+server.ts"
+	],
+	"/(app)/(payments)/pricing": [
+		"src/routes/(app)/(payments)/pricing/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/profile": [
+		"src/routes/(app)/profile/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	],
+	"/(app)/(auth)/regisitor": [
+		"src/routes/(app)/(auth)/regisitor/+page.server.ts",
+		"src/routes/+layout.server.ts"
+	]
+}
