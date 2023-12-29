@@ -17,8 +17,8 @@ const schema = z.object({
         .string()
         .min(2, { message: 'First name must be at least 2 characters long' })
         .max(64, { message: 'First name must be at most 64 characters long' }),
-    email: z.string(),
-    password: z.string(),
+    email: z.string().email({ message: 'Invalid email address' }),
+    password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
     confirmPassword: z.string(),
 }).superRefine(({ confirmPassword, password }, ctx) => {
     if (password !== confirmPassword) {
@@ -33,6 +33,11 @@ const schema = z.object({
             path: ['confirmPassword']
         })
     };
+    if (password === confirmPassword) {
+        return true;
+    }
+
+
 })
 
 

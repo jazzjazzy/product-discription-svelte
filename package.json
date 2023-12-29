@@ -6,6 +6,7 @@
 	},
 	"private": true,
 	"scripts": {
+		"postinstall": "prisma generate",
 		"local mysql stop": "sudo /etc/init.d/mysql stop",
 		"docker up": "docker-compose up -d",
 		"docker down": "docker-compose down",
@@ -72,6 +73,7 @@
 		"@lucia-auth/oauth": "^3.5.0",
 		"@prisma/client": "^4.16.1",
 		"@sveltejs/adapter-node": "^1.2.4",
+		"@tanstack/svelte-table": "^8.11.2",
 		"ai": "^2.2.8",
 		"bcrypt": "^5.1.1",
 		"langchain": "^0.0.102",
@@ -80,7 +82,7 @@
 		"moment": "^2.29.4",
 		"openai": "^4.1.0",
 		"replicate": "^0.9.3",
-		"sharp": "^0.32.0",
+		"sharp": "^0.32.6",
 		"ws": "^8.13.0",
 		"zod-form-data": "^2.0.1"
 	}
