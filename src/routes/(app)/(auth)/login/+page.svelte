@@ -77,7 +77,7 @@
 									class="border border-green-900 rounded-sm shadow-lg m-3 flex justify-items-center"
 								>
 									<div class="flex inline-flex bg-green-900 w-[4.1rem] justify-center">
-										<Icon icon="fa:google" class=" m-3 text text-white text-[35px]"/>
+										<Icon icon="fa:google" class=" m-3 text text-white text-[35px]" />
 									</div>
 									<div class="mx-4 text-lg font-extrabold inline-block align-baseline my-auto">
 										Login with Google
@@ -91,7 +91,7 @@
 									class="border border-slate-800 rounded-sm shadow-lg m-3 flex justify-items-center"
 								>
 									<div class="flex inline-flex bg-slate-800 w-[4.1rem] justify-center">
-										<Icon icon="fa:facebook" class="m-3 text text-white text-[35px]"/>
+										<Icon icon="fa:facebook" class="m-3 text text-white text-[35px]" />
 									</div>
 									<div class="mx-4 text-lg font-extrabold inline-block align-baseline my-auto">
 										Login with Facebook
@@ -101,21 +101,13 @@
 						</div>
 					</div>
 				</card-body>
-				<card-footer class="px-0">
-					<div class="grid grid-cols-2 px-10">
-						<div class="col-span-1">
-							<a href="/login/google">Sign in with google</a><br />
-							<a href="/login/facebook">Sign in with facebook</a>
-						</div>
-						<div class="col-span-1 flex justify-end gap-3">
-							<button
-								type="button"
-								on:click={cancelAndRedirectForm}
-								class="btn-lg variant-outline-primary border">Cancel</button
-							>
-							<button type="submit" class="btn-lg variant-filled-primary border">Log-in</button>
-						</div>
-					</div>
+				<card-footer>
+					<button
+						type="button"
+						on:click={cancelAndRedirectForm}
+						class="btn-lg variant-outline-primary border">Cancel</button
+					>
+					<button type="submit" class="btn-lg variant-filled-primary border">Log-in</button>
 				</card-footer>
 			</form>
 		{:else}

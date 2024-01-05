@@ -169,8 +169,8 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
     let clientSecret = null;
     // todo: this is messy and needs to be fixed jan 5 2024 jason
 
-    // need to have a client secret to use in the Elements form which can be found in the payment_intent 
-    // but if we have a trial period we don't get on, so if is not payment_intent create a setupIntent
+    // need to have a client secret to use in the Elements form which can be found in a payment_intent 
+    // But if we have a trial period we don't get one, so if there is no payment_intent create a setupIntent
     // and then get the client secret from that
     if (!subscription.latest_invoice?.payment_intent) {
       const setupIntent = await stripe.setupIntents.create({

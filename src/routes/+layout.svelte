@@ -16,7 +16,7 @@
 	<container>
 		<slot />
 	</container>
-	<footer class="flex justify-center mt-24 min-h-[200px] text-slate-100 bg-slate-700">
+	<footer class="flex justify-center mt-10 min-h-[200px] text-slate-100 bg-slate-700">
 		<div class="grid grid-cols-3 gap-4 w-3/5 my-10">
 			<div class="col-span-1">
 				<ul>

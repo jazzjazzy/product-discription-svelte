@@ -17,7 +17,6 @@
 	// Stripe Elements instance
 	let elements: StripeElements;
 
-	console.log("element", elements);
 
 	// when component mounts
 	onMount(async () => {
@@ -45,21 +44,24 @@
 	}
 </script>
 
-<div class="flex flex-col">
-	<h1 class="w-full">Payment</h1>
-	<div class="w-full">
-		{#if stripe}
-			<form on:submit|preventDefault={submit}>
-				<!-- container for Stripe components -->
-				<Elements {stripe} {clientSecret} bind:elements>
-					<!-- display payment related fields -->
-					<PaymentElement />
-				</Elements>
-
-				<button>Pay</button>
-			</form>
-		{:else}
-			Loading Stripe...
-		{/if}
+<form on:submit|preventDefault={submit}>
+	<div class="flex justify-center w-full">
+		<card-main class="w-3/5">
+			<card-header><h1>Payment</h1></card-header>
+			<card-body class="py-5">
+				{#if stripe}
+					<!-- container for Stripe components -->
+					<Elements {stripe} {clientSecret} bind:elements>
+						<!-- display payment related fields -->
+						<PaymentElement />
+					</Elements>
+				{:else}
+					Loading Stripe...
+				{/if}
+			</card-body>
+			<card-footer>
+				<button class="btn variant-filled-secondary">Make Payment</button>
+			</card-footer>
+		</card-main>
 	</div>
-</div>
+</form>

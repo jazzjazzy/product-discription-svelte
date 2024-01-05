@@ -13,7 +13,7 @@ export async function load({ url, locals }) {
   // pull payment intent id from the URL query string
   const id = url.searchParams.get('payment_intent')
 
-  console.log(id)
+
   if(id === null) {
     return { message: 'Success! Subscription has been updated.' }
   }

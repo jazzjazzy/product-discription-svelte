@@ -5,7 +5,7 @@ const resend = new Resend(RESEND_API_KEY);
 
 export const sendEmailVerificationLink = async (token: string, email: string) => {
     const url = `${DOMAIN}/email-verification/${token}`;
-    console.log(`Your email verification link: ${url}`);
+
     await resend.emails.send({
         from: 'Dis-scription <send@dis-scription.com>',
         to: ['jsjazzau@gmail.com'],
@@ -16,7 +16,7 @@ export const sendEmailVerificationLink = async (token: string, email: string) =>
 
 export const sendOAuthNotice = async (email: string, type: string) => {
     const url = `${DOMAIN}/login/${type}`;
-    console.log(`Your OAuth link: ${url}`);
+
     await resend.emails.send({
         from: 'Dis-scription  <send@dis-scription.com>',
         to: ['jsjazzau@gmail.com'],
@@ -27,7 +27,7 @@ export const sendOAuthNotice = async (email: string, type: string) => {
 
 export const sendPasswordResetLink = async (token: string, email: string) => {
     const url = `${DOMAIN}/forgotten/${token}`;
-    console.log(`Your password reset link: ${url}`);
+
     try {
         let sent = await resend.emails.send({
             from: 'Dis-scription <send@dis-scription.com>',
@@ -44,6 +44,10 @@ export const sendPasswordResetLink = async (token: string, email: string) => {
 export const isValidEmail = (maybeEmail: unknown): maybeEmail is string => {
     if (typeof maybeEmail !== 'string') return false;
     if (maybeEmail.length > 255) return false;
-    const emailRegexp = /^.+@.+$/; // [one or more character]@[one or more character]
+
+    //todo: testing new email regex, keeping old one commented for now. jason:5/1/2024
+    //const emailRegexp = /^.+@.+$/; // [one or more character]@[one or more character]
+    const emailRegexp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
     return emailRegexp.test(maybeEmail);
 };

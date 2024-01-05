@@ -201,9 +201,9 @@
 	<div class="px-7">
 		<div class="card">
 			<div class="card-header p-6 mb-6 border-b-orange-500 border-b-2">
-				<h1 class="text-4xl">Esty Assistant</h1>
+				<h1 class="text-4xl">Dis.cription Assistant</h1>
 			</div>
-			<div class="cardbody px-5">
+			<div class="cardbody px-5 pb-10">
 				<div class="grid gap-4 grid-cols-2">
 					<div class="col-span-1">
 						<TabGroup>
