@@ -73,13 +73,14 @@ export async function getEtsyDescription(chat: chatProductSetting, countRetrys =
             "max_tokens": chat.charatorCount
         })
 
-
+        console.log('chatCompletion', chatCompletion.choices[0].message);
         const chatCompletionJson = JSON.parse(chatCompletion.choices[0].message?.function_call?.arguments).results[0];
 
         const currDesciption: EtsyDescription | undefined = chatCompletionJson as EtsyDescription;
 
         if (!currDesciption || !currDesciption.product_title || !currDesciption.product_description || !currDesciption.product_keywords) {
             if (countRetrys >= maxCountRetrys) {
+                console.log('Too many retrys, attempt canceled');
                 throw new Error('Too many retrys, attempt canceled');
             }
             return getEtsyDescription(chat, countRetrys + 1); // Recursive call with incremented retryCount

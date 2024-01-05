@@ -32,11 +32,13 @@
 		foot: []
 	};
 
+	export let sessionId: string;
+
 	onMount(async () => {
-		const data = await getUsers();
+		const data = await getHistory();
 
 		const fetchedData = data.user;
-		console.log('fetchedData', fetchedData);
+
 		tableSimple = {
 			...tableSimple,
 			body: tableMapperValues(fetchedData, [
@@ -87,13 +89,15 @@
 		};
 	});
 
-	async function getUsers() {
+	async function getHistory() {
 		const response = await fetch('api/admin/history', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({})
+			body: JSON.stringify({
+				token: sessionId
+			})
 		});
 
 		const { body } = await response.json();

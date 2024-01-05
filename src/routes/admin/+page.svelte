@@ -8,6 +8,8 @@
 
 	export let data: PageData;
 
+	console.log('data', data);
+
 	let selectedComponent = 'users';
 
 	function selectComponent(component: string) {
@@ -61,11 +63,11 @@
 		<div class="p-9">
 			<h1 class="h2 p-3 uppercase">{selectedComponent}</h1>
 			{#if selectedComponent === 'users'}
-				<TableUsers />
+					<TableUsers />
 			{:else if selectedComponent === 'session'}
 				<TableSessions />
 			{:else if selectedComponent === 'history'}
-				<TableHistory />
+				<TableHistory sessionId={data.sessionId}  />
 			{:else if selectedComponent === 'pricing'}
 				<TablePricing />
 			{/if}

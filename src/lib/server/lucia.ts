@@ -15,7 +15,9 @@ export const auth = lucia({
 
 	getUserAttributes: (data) => {
 		return {
-			login: data.email
+			login: data.email,
+			email: data.email,
+			emailVerified: data.email_verified 
 		};
 	},
 
@@ -33,10 +35,12 @@ export const googleAuth = google(auth, {
 	clientId: GOOGLE_CLIENT_ID,
 	clientSecret: GOOGLE_CLIENT_SECRET,
 	redirectUri: "http://localhost:8080/login/google/callback",
+	scope: ['email', 'profile']
 });
 
 export const facebookAuth = facebook(auth, {
 	clientId: FACEBOOK_CLIENT_ID,
 	clientSecret: FACEBOOK_CLIENT_SECRET,
 	redirectUri: "http://localhost:8080/login/facebook/callback",
+	scope: ["email", "public_profile"]
 });

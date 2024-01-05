@@ -1,10 +1,39 @@
 import type { RequestHandler } from './$types';
 import prisma from '$lib/server/prisma'
 import { json } from '@sveltejs/kit'
+import type { validSession } from '$lib/types/user';
+import { validateBySessionId } from '$lib/helpers/user'
+import { page } from '$app/stores';
 
-export const POST: RequestHandler = async () => {
+export const POST: RequestHandler = async ({ request }) => {
+    const { token } = await request.json();
 
-    const user = await prisma.descriptionHistory.findMany({orderBy: {created_at: 'desc'}});
+    let activeSession: validSession = await validateBySessionId(token);
+
+    if (activeSession === null) {
+        return json({
+            status: 409,
+            body: {
+                message: 'No valid page was found',
+            }
+        });
+    }
+
+    let user = null;
+
+    //if the user is not an admin or god then they can only see their own history
+    if (activeSession.role === 'ADMIN' || activeSession.role === 'GOD') {
+        user = await prisma.descriptionHistory.findMany({ orderBy: { created_at: 'desc' } });
+        console.log('role', activeSession.role);
+        console.log('role', activeSession.plan);
+    }else{
+        return json({
+            status: 409,
+            body: {
+                message: 'No valid page was found',
+            }
+        });
+    }
 
     const maxLength = 50; // Maximum length of description
     user.forEach(item => {

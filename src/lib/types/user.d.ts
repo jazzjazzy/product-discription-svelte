@@ -11,6 +11,14 @@ export type User = {
     subscription?: Subscription[];
 }
 
+export type signup ={
+    firstname: string;
+    surname: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+}
+
 export type Session = {
     id: string;
     user_id: string;
@@ -25,3 +33,18 @@ export type Key = {
     user_id: string;
     user: User;
 }
+
+export type loginSession = {
+    userId: string,
+    name: string,
+    email: string,
+    plan: string | null,
+    subscribed: boolean,
+    role: userRoles,
+}
+
+export type validSession = {
+    user_id: string,
+    plan: string | null,
+    role: userRoles,
+} | null

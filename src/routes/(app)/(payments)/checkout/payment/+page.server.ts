@@ -16,6 +16,7 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
   const subtype = url.searchParams.get('subtype');
   const isupdate = url.searchParams.get('update');
 
+
   if (!subtype) {
     throw error(400, 'No subscription type specified');
   }
@@ -48,7 +49,7 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
   }
   //console.log("v", user);
   // if the user has an active subscription and is not updating their subscription redirect to pricing page
-  if (user?.subscription.length > 0 && user?.subscription[0].stripe_status == 'active' && isupdate === null) {
+  if (user?.subscription.length > 0 && (user?.subscription[0].stripe_status == 'active' || user?.subscription[0].stripe_status == 'trialing') && isupdate === null) {
     throw redirect(302, '/pricing');
   }
 
@@ -60,10 +61,10 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
 
   } else {
 
-    subscription = await addSubscription(user, subtype, pricing);
-    console.log("subscription", subscription);
+    let clientSecret = await addSubscription(user, subtype, pricing);
+
     return {
-      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+      clientSecret: clientSecret,
       returnUrl: new URL('/checkout/complete', DOMAIN).toString(),
     };
   }
@@ -92,7 +93,7 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
 
     const newPricing = await getSubscriptionType(isupdate);
 
-    if (subscription.status !== 'active') {
+    if (subscription.status !== 'active' && subscription.status !== 'trialing') {
       throw error(500, 'Subscription not found, subscription could not be updated')
     }
 
@@ -142,6 +143,8 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
   async function addSubscription(user: PrismaUser, subtype: string, pricing: Pricing) {
     let customerId = null;
 
+    console.log("pricing", pricing);
+
     if (!!user.stripe_customer_id) {
       customerId = user.stripe_customer_id
     } else {
@@ -151,13 +154,34 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
       });
       customerId = customer.id;
     }
+
+    //todo: fix this so we can use this subscription trial_period_days or just straight subscription based on a flag or setting jan 5 2024 jason
+
     subscription = await stripe.subscriptions.create({
       customer: customerId,
       items: [{ price: pricing.stripe_price_id }],
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription' },
       expand: ['latest_invoice.payment_intent'],
+      trial_period_days: 14, // need to remove this it you don't want trial period
     });
+
+    let clientSecret = null;
+    // todo: this is messy and needs to be fixed jan 5 2024 jason
+
+    // need to have a client secret to use in the Elements form which can be found in the payment_intent 
+    // but if we have a trial period we don't get on, so if is not payment_intent create a setupIntent
+    // and then get the client secret from that
+    if (!subscription.latest_invoice?.payment_intent) {
+      const setupIntent = await stripe.setupIntents.create({
+        payment_method_types: ['card'],
+        customer: customerId,
+      });
+
+      clientSecret = setupIntent.client_secret
+    }else{
+      clientSecret = subscription.latest_invoice.payment_intent.client_secret
+    }
 
     //if wwe have a subscription that is incomplete update it
     if (user.subscription.length > 0 && user.subscription[0].stripe_status === 'incomplete') {
@@ -190,6 +214,6 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
         },
       });
     }
-    return subscription;
+    return  clientSecret ;
   }
 }

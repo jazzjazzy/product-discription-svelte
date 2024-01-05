@@ -28,7 +28,7 @@
 	// handle form submission
 	async function submit() {
 		// ask Stripe to confirm the payment
-		const { error } = await stripe.confirmPayment({
+		const { error } = await stripe.confirmSetup({
 			// pass instance that was used to create the Payment Element
 			elements,
 

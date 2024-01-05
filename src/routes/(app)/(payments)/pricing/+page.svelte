@@ -58,7 +58,7 @@
 							{/if}
 						{:else if !loggedIn}
 							<!--if not signed in get user to registor-->
-							<a href="/regisitor" class="btn variant-ringed-primary rounded-lg">Register</a>
+							<a href="/signup" class="btn variant-ringed-primary rounded-lg">Sign-up</a>
 						{:else}
 							<!--if signed in and no subscription allow to purchase -->
 							<a

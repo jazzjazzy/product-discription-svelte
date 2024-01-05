@@ -45,4 +45,9 @@ export function stripHtmlfromString(str: string): string | null {
     return str.replace(/<[^>]*>/g, '');
 }
 
+export function formatDateToLocal(dateString : Date) {
+    const dateObject = new Date(dateString);
+    return dateObject.toLocaleString(); // Or any other format you prefer
+}
+
 

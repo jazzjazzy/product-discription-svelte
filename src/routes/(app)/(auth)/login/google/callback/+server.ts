@@ -1,15 +1,15 @@
 // routes/login/google/callback/+server.ts
 import { auth, googleAuth } from "$lib/server/lucia"
 import { OAuthRequestError } from "@lucia-auth/oauth";
+import { getUserlogin } from "$lib/helpers/user";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
+import { error, redirect } from "@sveltejs/kit";
 
 export const GET = async ({ url, cookies, locals }) => {
 	const storedState = cookies.get("google_oauth_state");
 	const state = url.searchParams.get("state");
 	const code = url.searchParams.get("code");
 
-	console.log("storedState", storedState);
-	console.log("state", state);
-	console.log("code", code);
 	// validate state
 	if (!storedState || !state || storedState !== state || !code) {
 		return new Response(null, {
@@ -20,22 +20,32 @@ export const GET = async ({ url, cookies, locals }) => {
 		const { getExistingUser, googleUser, createUser } =
 			await googleAuth.validateCallback(code);
 
-		console.log("googleUser", googleUser);
 		const getUser = async () => {
 			const existingUser = await getExistingUser();
 			if (existingUser) return existingUser;
 			const user = await createUser({
 				attributes: {
-					firstname: googleUser.login
+					firstname: googleUser.given_name,
+					surname: googleUser.family_name,
+					email: googleUser.email!,
+					role: "USER",
+					email_verified: true, // google oauth is are concided verified on signup
 				}
 			});
 			return user;
 		};
 
 		const user = await getUser();
+		const { name, role, subscribed, plan } = await getUserlogin(user.userId);
+
 		const session = await auth.createSession({
 			userId: user.userId,
-			attributes: {}
+			attributes: {
+				name,
+				role,
+				subscribed,
+				plan,
+			}
 		});
 		locals.auth.setSession(session);
 		return new Response(null, {
@@ -45,13 +55,16 @@ export const GET = async ({ url, cookies, locals }) => {
 			}
 		});
 	} catch (e) {
-		console.log("e", e);
 		if (e instanceof OAuthRequestError) {
-			// invalid code
-			return new Response(null, {
-				status: 400
-			});
+			throw error(401, "Unauthorized - could not connect to Facebook oAuth with current one time code");
 		}
+
+		if (e instanceof PrismaClientKnownRequestError && e.code == "P2002") {
+			//throw error(409, "Conflict - User with that email already exists");
+			cookies.set('login_error', 'User with that email already exists', { path: '/', httpOnly: true });
+			throw redirect(302, '/login');
+		}
+
 		return new Response(null, {
 
 			status: 500

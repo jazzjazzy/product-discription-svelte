@@ -2,10 +2,18 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { z } from "zod";
 import { auth } from '$lib/server/lucia';
+import { generateEmailVerificationToken } from "$lib/server/token";
+import { sendEmailVerificationLink } from "$lib/server/email";
 
-export const load = (async (event) => {
-    return {};
-}) satisfies PageServerLoad;
+
+export const load = (async ({locals}) => {
+    const session = await locals.auth.validate();
+	if (session) {
+		if (!session.user.emailVerified) throw redirect(302, "/email-verification");
+		throw redirect(302, "/");
+	}
+	return {};
+}) 
 
 
 const schema = z.object({
@@ -33,11 +41,23 @@ const schema = z.object({
             path: ['confirmPassword']
         })
     };
+
+    // Check for at least one uppercase letter, one special character, and one number
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasSpecialChar = /[^A-Za-z0-9\s_]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+
+    if (!hasUpperCase || !hasSpecialChar || !hasNumber) {
+        ctx.addIssue({
+            code: 'custom',
+            message: 'Password must contain at least :  <br />- one uppercase letter <br />- one special character<br />- one number',
+            path: ['password']
+        });
+    }
+
     if (password === confirmPassword) {
         return true;
     }
-
-
 })
 
 
@@ -56,6 +76,7 @@ export const actions = {
                     password: result.password,
                 },
                 attributes: {
+                    email_verified: false,
                     email: result.email,
                     firstname: result.firstname,
                     surname: result.surname,
@@ -72,6 +93,9 @@ export const actions = {
                 },
             });
             locals.auth.setSession(session); // set the session in the auth request
+
+            const token = await generateEmailVerificationToken(user.userId);
+			await sendEmailVerificationLink(token, result.email);
 
         } catch (err: any) {
             console.log("exception:: ", err);

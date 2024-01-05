@@ -17,7 +17,12 @@
 	export let data: PageData;
 	export let form: ActionData;
 
+	let errorImage: string | null = null;
+	let errorStoreDesc: string | null = null;
+	let errorProductDesc: string | null = null;
+
 	let sessionId = data.session;
+	let plan = data.plan;
 
 	let temperature = 0.2; // Default value for the slider
 	let charatorCount = 500; // Default value for the slider
@@ -27,7 +32,7 @@
 	let success: boolean = false;
 	let message: string = '';
 
-	let imageUrl = 'IMG_5150.jpeg';
+	let imageUrl = '';
 	let tabSet: number = 0;
 
 	let pageDescription = '';
@@ -51,10 +56,8 @@
 	let keywordLength = 20;
 	let clearKeywords = ''; //keywords without the ones that are more than 20 characters
 	//outgoing data to description product
-	let productDescription =
-		'This is a dice tower with an inbuilt tray made from cherry wood and lined with a blue felt';
-	let storeDescription =
-		'we are a store that sells equipment for board games, dice games and role-playing games, we sell dice towers and dice trays hand-made from exotic wood species ';
+	let productDescription = '';
+	let storeDescription = '';
 
 	let imageIsUpload = false;
 
@@ -100,12 +103,45 @@
 	 */
 	async function generateProductDiscription() {
 		if (loading) return;
+
+		//reset errors
+		errorImage = null;
+		errorStoreDesc = null;
+		errorProductDesc = null;
+
+		let hasError = false;
+
+		console.log('generateProductDiscription');
+		console.log('imageUrl', imageUrl);
+		if (!imageUrl) {
+			errorImage =
+				'Please upload or add Url of an image that requires a discription to be generated';
+			hasError = true;
+		}
+		console.log('storeDescription', storeDescription);
+		if (!storeDescription) {
+			errorStoreDesc = 'Please enter a store description to help expand on the product description';
+			hasError = true;
+		}
+		console.log('productDescription', productDescription);
+		if (!productDescription) {
+			errorProductDesc =
+				'Please enter a product description to help us to detemine the products style, features and benefits';
+			hasError = true;
+		}
+		console.log('hasError', hasError);
+
+		if (hasError) return;
+
 		loading = true;
 
+		isEditable = false;
 		pageTitle = '';
 		pageDescription = '';
 		pageKeywords = '';
 		pageJson = '';
+		pageTitleCount = 0;
+		pageDescriptionCount = 0;
 
 		try {
 			processing = true;
@@ -159,6 +195,7 @@
 		buttonString = 'Write New Copy';
 	}
 </script>
+
 
 <main class="main">
 	<div class="px-7">
@@ -263,38 +300,95 @@
 							</svelte:fragment>
 						</TabGroup>
 					</div>
-					<div class="col-span-1">
-						<InputStore {storeDescription} />
-						<InputProduct {productDescription} />
 
-						<div class="grid grid-cols-2">
-							<div class="col-span-1 p-3 slider-container">
-								<TemperatureSlider {temperature} />
+					<div class="col-span-1">
+						<InputStore bind:storeDescription {sessionId} {plan} />
+						<InputProduct bind:productDescription />
+						{#if plan === 'Pro' || plan === 'Ultra'}
+							<div class="grid grid-cols-2">
+								<div class="col-span-1 p-3 slider-container">
+									<TemperatureSlider bind:temperature />
+								</div>
+								<div class="col-span-1 p-3 slider-container">
+									<TextSizeSlider bind:charatorCount />
+								</div>
 							</div>
-							<div class="col-span-1 p-3 slider-container">
-								<TextSizeSlider {charatorCount} />
-							</div>
-						</div>
+						{/if}
 					</div>
+				</div>
+				<div class="w-full p-6">
+					{#if errorImage}
+						<aside
+							class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+							role="alert"
+						>
+							<!-- Flex container for icon and text -->
+							<span class="flex items-center">
+								<!-- Icon -->
+								<Icon icon="material-symbols:warning-outline" class="text-4xl" />
+
+								<!-- Text Message -->
+								<span class="ml-2">Please upload or add Url of an <strong>Image</strong> that requires a discription to be generated.</span>
+							</span>
+
+							<!-- Additional actions or content can go here -->
+						</aside>
+					{/if}
+					{#if errorStoreDesc}
+						<aside
+							class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-1 rounded relative"
+							role="alert"
+						>
+							<!-- Flex container for icon and text -->
+							<span class="flex items-center">
+								<!-- Icon -->
+								<Icon icon="material-symbols:warning-outline" class="text-4xl" />
+
+								<!-- Text Message -->
+								<span class="ml-2">Please enter a <strong>Store Description</strong> to help expand on the product description</span>
+							</span>
+
+							<!-- Additional actions or content can go here -->
+						</aside>
+					{/if}
+					{#if errorProductDesc}
+						<aside
+							class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-1 rounded relative"
+							role="alert"
+						>
+							<!-- Flex container for icon and text -->
+							<span class="flex items-center">
+								<!-- Icon -->
+								<Icon icon="material-symbols:warning-outline" class="text-4xl" />
+
+								<!-- Text Message -->
+								<span class="ml-2">Please enter a <strong>Product Description</strong> to help us to detemine the product style features and benefits</span>
+							</span>
+
+							<!-- Additional actions or content can go here -->
+						</aside>
+					{/if}
 				</div>
 
 				<div class="w-full">
-					<div class="flex justify-center">
-						<button
-							class="btn variant-filled my-2 w-4/6 text-fuchsia-400"
-							on:click={generateProductDiscription}
-						>
-							{buttonString}
-							{#if processing}
-								<ProgressRadial
-									class="w-6 h-6 ml-2"
-									stroke={240}
-									meter="stroke-primary-500"
-									track="stroke-primary-500/30"
-								/>
-							{/if}
-						</button>
-					</div>
+					{#if !data.monthlyLimit}
+						<div class="flex justify-center">
+							<button
+								class="btn variant-filled my-2 w-4/6 text-fuchsia-400"
+								on:click={generateProductDiscription}
+							>
+								{buttonString}
+								{#if processing}
+									<ProgressRadial
+										class="w-6 h-6 ml-2"
+										stroke={240}
+										meter="stroke-primary-500"
+										track="stroke-primary-500/30"
+									/>
+								{/if}
+							</button>
+						</div>
+					{/if}
 					<card-title>
 						<ResultsTitle {isEditable} {divTitle} {pageTitle} {pageTitleCount} />
 					</card-title>
@@ -338,5 +432,23 @@
 		& div {
 			@apply h-64 overflow-y-auto;
 		}
+	}
+
+	.dialog-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	.dialog-content {
+		background: white;
+		padding: 20px;
+		border-radius: 10px;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 	}
 </style>

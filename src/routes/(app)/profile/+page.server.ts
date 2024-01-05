@@ -1,21 +1,29 @@
 import type { PageServerLoad } from './$types';
 import type { User as PrismaUser } from '$lib/types/user';
-import { redirect } from '@sveltejs/kit';
+import { redirect, error } from '@sveltejs/kit';
 import prisma from '$lib/server/prisma';
 import { auth } from '$lib/server/lucia';
 import { stripe } from '$lib/server/stripe';
 
 
 export const load = (async ({ locals }) => {
-
     const session = await locals.auth.validate();
+    console.log("session", session)
+    //if we have session and email is not verified redirect to email verification page
+    if (session) {
+        if (!session.user.emailVerified) throw redirect(302, "/email-verification");
+    }
 
     if (!session) {
+        console.log("no session")
         throw redirect(302, "/login");
     }
 
-    let user: PrismaUser | null = await prisma.user.findUnique({ where: { id: session.user.userId }, include: { auth_session: true, key: true, subscription: true } })
+    let user = await prisma.user.findUnique({ where: { id: session.user.userId }, include: { auth_session: true, key: true, subscription: true } })
 
+    if (!user) {
+        throw error(404, 'User could not be found, confirm user exists');
+    }
 
     return { user };
 }) satisfies PageServerLoad;
@@ -144,10 +152,10 @@ export const actions = {
 
             console.log("session.user.login", session.user.login)
             console.log("email", email)
-            
+
             //TODO: NEED TO FIND A WAY TO update email key
-           // await auth.deleteKey("email", session.user.login)
-           // await auth.createKey("email", form.get('email'), session.user.login )
+            // await auth.deleteKey("email", session.user.login)
+            // await auth.createKey("email", form.get('email'), session.user.login )
 
             const sessionNew = await auth.updateSessionAttributes(
                 session.sessionId,

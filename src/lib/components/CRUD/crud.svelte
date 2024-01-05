@@ -47,7 +47,7 @@
 	 */
 	export let jsonStr: string[] = [];
 
-    /**
+	/**
 	 * Title of form block
 	 * @type {string[]}
 	 * @example ['title']
@@ -132,12 +132,12 @@
 					<button class="btn variant-ghost-error m-3" id="btn-delete" formaction="?/delete"
 						>Delete</button
 					>
-					<button class="btn variant-ghost-warning m-3" id="btn-cancel">Cancel</button>
+					<a href="/admin" class="btn variant-ghost-warning m-3" id="btn-cancel">Cancel</a>
 				{:else}
 					<button class="btn variant-ghost-primary m-3" id="btn-save" formaction="?/create"
 						>Update</button
 					>
-					<button class="btn variant-ghost-warning m-3" id="btn-cancel">Cancel</button>
+					<a href="/admin" class="btn variant-ghost-warning m-3" id="btn-cancel">Cancel</a>
 				{/if}
 			</card-footer>
 		</form>

@@ -12,20 +12,45 @@ datasource db {
 }
 
 model User {
-  id                 String               @id @unique
-  firstname          String
-  surname            String
-  email              String               @unique
-  role               userRoles            @default(USER)
-  stripe_customer_id String?
-  subscription_id    String?
-  auth_session       Session[]
-  key                Key[]
-  subscription       Subscription[]
-  DescriptionHistory DescriptionHistory[]
-  created_at         DateTime             @default(now())
-  updated_at         DateTime             @updatedAt
-  deleted_at         DateTime?
+  id                       String                     @id @unique
+  firstname                String
+  surname                  String
+  email                    String                     @unique
+  role                     userRoles                  @default(USER)
+  email_verified           Boolean                    @default(false)
+  stripe_customer_id       String?
+  auth_session             Session[]
+  key                      Key[]
+  subscription             Subscription[]
+  DescriptionHistory       DescriptionHistory[]
+  password_reset_token     password_reset_token[]
+  email_verification_token email_verification_token[]
+  shop_description         shop_description[]
+  created_at               DateTime                   @default(now())
+  updated_at               DateTime                   @updatedAt
+  deleted_at               DateTime?
+}
+
+model email_verification_token {
+  id         String   @id @default(uuid())
+  expires    BigInt
+  user_id    String
+  user       User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([user_id])
+}
+
+model password_reset_token {
+  id         String   @id @default(uuid())
+  expires    BigInt
+  user_id    String
+  user       User     @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([user_id])
 }
 
 enum userRoles {
@@ -83,11 +108,12 @@ model Subscription {
   stripe_status          String
   stripe_price_id        String
   stripe_customer_id     String    @unique
+  trial_end_date         DateTime?
   created_at             DateTime  @default(now())
   updated_at             DateTime  @updatedAt
   deleted_at             DateTime?
-  User                   User?     @relation(fields: [user_id], references: [id])
-  Pricing                Pricing?  @relation(fields: [price_id], references: [id])
+  User                   User      @relation(fields: [user_id], references: [id])
+  Pricing                Pricing   @relation(fields: [price_id], references: [id])
 
   @@index([user_id])
   @@index([price_id])
@@ -114,4 +140,15 @@ model DescriptionHistory {
   updated_at            DateTime  @updatedAt
   deleted_at            DateTime?
   User                  User?     @relation(fields: [user_id], references: [id])
+}
+
+model shop_description {
+  id          String    @id @default(uuid())
+  user_id     String?
+  title       String    @db.TinyText ///title of the shop discription
+  description String    @db.Text ///the recorded description
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  deleted_at  DateTime?
+  user        User?     @relation(fields: [user_id], references: [id])
 }

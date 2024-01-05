@@ -8,6 +8,12 @@ export const load = (async ({ locals }) => {
 
     let session = await locals.auth.validate();
 
+    console.log('session', session);
+
+    let sessionId = session.sessionId
+
+    console.log('sessionId', sessionId);
+
     const online = await prisma.session.count({
         where: {
             active_expires: {
@@ -21,16 +27,16 @@ export const load = (async ({ locals }) => {
             created_at: {
                 gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
             },
-            AND : {
-                role : {
+            AND: [{
+                role: {
                     not: 'ADMIN'
-                },
-                OR: {
-                    role : {
-                        not: 'GOD'
-                    }
                 }
             },
+            {
+                role: {
+                    not: 'GOD'
+                }
+            }],
         }
     });
 
@@ -39,16 +45,16 @@ export const load = (async ({ locals }) => {
             created_at: {
                 gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
             },
-            AND : {
-                role : {
+            AND: [{
+                role: {
                     not: 'ADMIN'
-                },
-                OR: {
-                    role : {
-                        not: 'GOD'
-                    }
                 }
             },
+            {
+                role: {
+                    not: 'GOD'
+                }
+            }]
         }
     });
 
@@ -61,5 +67,5 @@ export const load = (async ({ locals }) => {
     });
 
 
-    return { online, usersSevenDays, usersToday, historySevenDays };
+    return { online, usersSevenDays, usersToday, historySevenDays, sessionId };
 }) satisfies PageServerLoad;
