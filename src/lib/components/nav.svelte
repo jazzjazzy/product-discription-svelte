@@ -11,8 +11,8 @@
 </script>
 
 <nav>
-	<div class="grid grid-cols-3 border-2 mb-4 bg-white">
-		<div class="col-span-1 flex place-content-start p-4">
+	<div class="grid grid-cols-12 border-2 mb-4 bg-white">
+		<div class="col-span-5 flex place-content-start p-4">
 			<div class="font-sans">
 				<!-- do these later
                 <div class="btn-lg inline-block">
@@ -46,10 +46,10 @@
 				{/if}
 			</div>
 		</div>
-		<div class="col-span-1 text-5xl text-center m-auto align-middle font-semibold">
+		<div class="col-span-2 text-5xl text-center m-auto align-middle font-semibold">
 			<a href="/">Dis<span class="text-7xl line- text-red-500">.</span>scription</a>
 		</div>
-		<div class="col-span-1 flex place-content-end p-4">
+		<div class="col-span-5 flex place-content-end p-4">
 			<div class="font-sans">
 				{#if data.userId == null}
 					<div class="inline-block">
@@ -59,8 +59,8 @@
 						<a href="/signup"><div class="btn-lg variant-filled">Sign-up</div></a>
 					</div>
 				{:else}
-					<div class="grid grid-cols-3 gap-3">
-						<div class="col-span-1">
+					<div class="grid grid-cols-6 gap-3">
+						<div class="col-span-4 text-right">
 							<div class="text-sm">{data.name}</div>
 							<div class="text-xs">{data.email}</div>
 							{#if data.subscribed == true}
@@ -68,7 +68,7 @@
 							{/if}
 						</div>
 						<div class="col-span-1">
-							<form method="post" action="/login?/signout" class="inline-block">
+							<form method="post" action="/login?/signout">
 								<button type="submit" class="btn-lg variant-filled">Logout</button>
 							</form>
 						</div>

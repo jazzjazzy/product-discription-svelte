@@ -18,9 +18,8 @@
 <div class="container flex justify-center">
 	<card-main class="w-1/2">
 		<card-header>
-			<h1 class="text-left text-4xl">Register</h1>
+			<h1 class="text-left text-4xl">Sign up</h1>
 		</card-header>
-
 		{#if data?.userId == null}
 			<form method="post" bind:this={regform}>
 				<card-body>
@@ -109,8 +108,7 @@
 					</div>
 				</card-body>
 				<card-footer>
-					<div class="grid grid-cols-2">
-						<div class="col-span-1" />
+					<div class="grid grid-cols-1">
 						<div class="col-span-1 flex justify-end gap-3">
 							<button
 								type="button"

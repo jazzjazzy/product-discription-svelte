@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import prisma from '$lib/server/prisma';
+import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = (async ({ params }) => {
     const { id } = params;
@@ -56,6 +57,6 @@ export const actions = {
             }
         });
 
-        throw redirect('/admin');
+        throw redirect(302, '/admin');
     }
 } 

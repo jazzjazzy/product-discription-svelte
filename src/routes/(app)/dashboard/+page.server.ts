@@ -19,10 +19,11 @@ import { redirect } from '@sveltejs/kit';
 export const load = (async ({ locals }) => {
   let session = await locals.auth.validate(); // get the session from the auth request
 
-	if (!session) throw redirect(302, "/login");
+	if (session) throw redirect(302, "/login");
 	if (!session.user.emailVerified) {
 		throw redirect(302, "/email-verification");
 	}
+  
 
 
   var monthlyLimit:boolean = false;

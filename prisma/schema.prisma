@@ -21,8 +21,8 @@ model User {
   stripe_customer_id       String?
   auth_session             Session[]
   key                      Key[]
-  subscription             Subscription[]
-  DescriptionHistory       DescriptionHistory[]
+  subscription             Subscription[]             
+  DescriptionHistory       DescriptionHistory[]      
   password_reset_token     password_reset_token[]
   email_verification_token email_verification_token[]
   shop_description         shop_description[]
@@ -112,7 +112,7 @@ model Subscription {
   created_at             DateTime  @default(now())
   updated_at             DateTime  @updatedAt
   deleted_at             DateTime?
-  User                   User      @relation(fields: [user_id], references: [id])
+  User                   User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   Pricing                Pricing   @relation(fields: [price_id], references: [id])
 
   @@index([user_id])

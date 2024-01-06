@@ -102,12 +102,16 @@
 					</div>
 				</card-body>
 				<card-footer>
-					<button
-						type="button"
-						on:click={cancelAndRedirectForm}
-						class="btn-lg variant-outline-primary border">Cancel</button
-					>
-					<button type="submit" class="btn-lg variant-filled-primary border">Log-in</button>
+					<div class="grid grid-cols-1">
+						<div class="col-span-1 flex justify-end gap-3">
+							<button
+								type="button"
+								on:click={cancelAndRedirectForm}
+								class="btn-lg variant-outline-primary border">Cancel</button
+							>
+							<button type="submit" class="btn-lg variant-filled-primary border">Log-in</button>
+						</div>
+					</div>
 				</card-footer>
 			</form>
 		{:else}

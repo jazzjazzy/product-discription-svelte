@@ -25,7 +25,7 @@
 			<card-header>
 				<h1>Send Reset</h1>
 			</card-header>
-			<card-body>
+			<card-body class="py-4">
 				<p>Enter your email address and we'll send you a link to reset your password.</p>
 				<label for="email">Email</label>
 				<input name="email" id="email" value={form?.email ?? ''} />
