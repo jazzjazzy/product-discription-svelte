@@ -21,8 +21,8 @@ model User {
   stripe_customer_id       String?
   auth_session             Session[]
   key                      Key[]
-  subscription             Subscription[]             
-  DescriptionHistory       DescriptionHistory[]      
+  subscription             Subscription[]
+  DescriptionHistory       DescriptionHistory[]
   password_reset_token     password_reset_token[]
   email_verification_token email_verification_token[]
   shop_description         shop_description[]
@@ -87,6 +87,7 @@ model Pricing {
   id              String         @id @default(uuid())
   name            String
   price           Float
+  limit           Int            @default(0)
   description     String?        @db.Text
   list            String         @db.Text
   stripe_price_id String
