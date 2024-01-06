@@ -1,5 +1,4 @@
 import type { RequestHandler } from './$types';
-
 import { json } from '@sveltejs/kit'
 import type { validSession } from '$lib/types/user';
 import { validateBySessionId } from '$lib/helpers/user'
