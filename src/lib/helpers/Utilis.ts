@@ -1,5 +1,5 @@
 /**
- * This will taking in comma seperated list and s string size and return a string 
+ * This will taking in comma seperated list and check string size and returning a formated html
  * with the keywords that are over the size limit highlighted in red 
  *  
  * @param keywords 
@@ -7,7 +7,7 @@
  * @returns string 
  */
 
-export function checkStringSize(keywords: string, size: number): string {
+export function formateKeywordstring(keywords: string, size: number): string {
 
     let keywordsCleaned: string | null = stripHtmlfromString(keywords);
 
@@ -18,18 +18,17 @@ export function checkStringSize(keywords: string, size: number): string {
     let keyList: string[] = keywordsCleaned.split(',');
     let revisedKeyword: string[] = [];
     for (const key of keyList) {
-        console.log('key', key, key.length);
         if (key.length > size) {
-            console.log('keywordrevised', key);
-            let keyword = `<span class="badge variant-filled text-white bg-red-600">${key}</span>`;
+            let keyword = `<span class="badge variant-filled text-white bg-red-600 rounded-lg">${key}</span>`;
             revisedKeyword.push(keyword);
         } else {
-            let keyword = `<span class="badge variant-filled text-black bg-gray-300">${key}</span>`;
+            let keyword = key;
             revisedKeyword.push(keyword);
         }
     }
     return revisedKeyword.join(',');
 }
+
 
 /**
  * This will take in a string and remove all html tags from it
@@ -44,6 +43,11 @@ export function stripHtmlfromString(str: string): string | null {
         str = str.toString();
 
     return str.replace(/<[^>]*>/g, '');
+}
+
+export function formatDateToLocal(dateString : Date) {
+    const dateObject = new Date(dateString);
+    return dateObject.toLocaleString(); // Or any other format you prefer
 }
 
 

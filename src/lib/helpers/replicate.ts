@@ -1,24 +1,21 @@
 import { REPLICATE_API_TOKEN } from '$env/static/private';
-import fs from 'fs';
-import axios from 'axios';
-import path from 'path';
-import Replicate from 'replicate';
+import Replicate, { type Prediction } from 'replicate';
 
 /**
  * call replicate to get a description of the image 
  * @param directoryPath 
  */
-export async function getSelectedImageDescription(imageUrl: string, productDescription: string): Promise<string> {
+export async function getSelectedImageDescription(imageUrl: string, productDescription: string, replicate:Replicate): Promise<Prediction> {
     try {
-        const replicate = new Replicate({
-            auth: REPLICATE_API_TOKEN,
-        });
+       /// const replicate = new Replicate({
+        //    auth: REPLICATE_API_TOKEN,
+        //});
 
         console.log("image url", imageUrl);
 
-        const output = await replicate.run(
-            "daanelson/minigpt-4:b96a2f33cc8e4b0aa23eacfce731b9c41a7d9466d9ed4e167375587b54db9423",
+        const prediction = await replicate.predictions.create(
             {
+                version: "b96a2f33cc8e4b0aa23eacfce731b9c41a7d9466d9ed4e167375587b54db9423",
                 input: {
                     image: imageUrl,
                     prompt: productDescription + " and its style in 500 words",
@@ -26,19 +23,20 @@ export async function getSelectedImageDescription(imageUrl: string, productDescr
                     temperature: 1.26,
                     top_p: 0.9,
                     repetition_penalty: 1,
-                    max_new_tokens: 1000,
-                    max_length: 1000,
+                    max_new_tokens: 3000,
+                    max_length: 4000,
                 }
             })
-        console.log("discript", productDescription + " and its style in 500 words");
-        console.log("image description output", output);
+       // console.log("discript", productDescription + " and its style in 500 words");
+       // console.log("image description output", prediction);
 
-        return JSON.stringify(output)
+        return prediction
     } catch (error) {
         console.error('Replicate getSelectedImageDescription Error executing script:', error);
         throw error;
     }
 }
+
 
 /**
  * use replicate to get a upscaled image
