@@ -1,0 +1,8 @@
+{
+    "workbench.colorCustomizations": {
+        "tab.activeBorderTop": "#ff5100", // Active Tab Top Highlighting
+        "tab.activeBorder": "#ff5100",
+        "terminal.tab.activeBorder": "#ff0000",
+        "tab.border": "#5d5b5b"
+    }
+}
