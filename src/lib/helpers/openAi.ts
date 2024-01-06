@@ -78,15 +78,16 @@ export async function getEtsyDescription(chat: chatProductSetting, countRetrys =
 
         const currDesciption: EtsyDescription | undefined = chatCompletionJson as EtsyDescription;
 
+        //if we dont have a description or title or keywords then try again
         if (!currDesciption || !currDesciption.product_title || !currDesciption.product_description || !currDesciption.product_keywords) {
+            //if we have retried too many times then throw an error
             if (countRetrys >= maxCountRetrys) {
                 console.log('Too many retrys, attempt canceled');
+                //TODO: need to return a error message back to the user 
                 throw new Error('Too many retrys, attempt canceled');
             }
             return getEtsyDescription(chat, countRetrys + 1); // Recursive call with incremented retryCount
         }
-
-
         return chatCompletionJson;
     } catch (error) {
         return error;

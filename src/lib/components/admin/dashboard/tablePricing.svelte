@@ -25,7 +25,7 @@
 	};
 
 	onMount(async () => {
-		const data = await getUsers();
+		const data = await getPricing();
 
 		const fetchedData = data.user;
 		console.log('fetchedData', fetchedData);
@@ -59,8 +59,8 @@
 		};
 	});
 
-	async function getUsers() {
-		const response = await fetch('api/admin/pricing', {
+	async function getPricing() {
+		const response = await fetch('/api/admin/pricing', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

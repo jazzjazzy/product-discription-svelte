@@ -4,7 +4,7 @@
 	import { tableMapperValues } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
 
-    // todo: need to change out this table to use the new table component as Skeleton is not functional at all
+	// todo: need to change out this table to use the new table component as Skeleton is not functional at all
 
 	let tableSimple: TableSource = {
 		head: ['id', 'firstname', 'surname', 'email', 'role', 'status', 'created_at', 'updated_at'],
@@ -16,7 +16,7 @@
 	onMount(async () => {
 		const data = await getUsers();
 
-        const fetchedData = data.user
+		const fetchedData = data.user;
 		console.log('fetchedData', fetchedData);
 		tableSimple = {
 			...tableSimple,
@@ -40,12 +40,12 @@
 				'created_at',
 				'updated_at'
 			]),
-            foot: ['Total', '', `<code class="code">${data.message}</code>`]
+			foot: ['Total', '', `<code class="code">${data.message}</code>`]
 		};
 	});
 
 	async function getUsers() {
-		const response = await fetch('api/admin/users', {
+		const response = await fetch('/api/admin/users', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -65,7 +65,6 @@
 			console.error('Error Description script:', error);
 		}
 	}
-
 </script>
 
 <Table interactive={true} source={tableSimple} on:selected={clicklink} />

@@ -6,6 +6,7 @@ import path from 'path';
 import sharp from 'sharp';
 import prisma from '$lib/server/prisma';
 import { redirect } from '@sveltejs/kit';
+import { isPlanLimitReached } from '$lib/helpers/user';
 
 /**
  * varaibles
@@ -19,43 +20,17 @@ import { redirect } from '@sveltejs/kit';
 export const load = (async ({ locals }) => {
   let session = await locals.auth.validate(); // get the session from the auth request
 
-	if (session) throw redirect(302, "/login");
+	if (!session) throw redirect(302, "/login");
 	if (!session.user.emailVerified) {
 		throw redirect(302, "/email-verification");
 	}
-  
 
-
-  var monthlyLimit:boolean = false;
-
-  if (session.subscribed) {
-
-    const currentDate = new Date();
-    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-
-
-    const totalRecordsThisMonth = await prisma.descriptionHistory.count({
-      where: {
-        user_id: session.user.userId,
-        created_at: {
-          gte: firstDayOfMonth
-        }
-      }
-    });
-
-    if(session.plan === 'Nano' && totalRecordsThisMonth >= 5){
-      monthlyLimit = true;
-    }else if(session.plan === 'Pro' && totalRecordsThisMonth >= 50){
-      monthlyLimit = true;
-    }
-  }
-
-
-
+  let monthlyLimit = isPlanLimitReached(session.user.userId, session.plan)
   // we need the session id to send as part of api/discriptor request so we can get the user id on the sever side
   return {
     session: session.sessionId,
-    monthlyLimit: monthlyLimit
+    monthlyLimit: monthlyLimit,
+    plan: session.plan
   };
 }) satisfies PageServerLoad;
 

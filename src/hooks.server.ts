@@ -6,16 +6,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.auth = auth.handleRequest(event);
 
 	const session = await event.locals.auth.validate();
-	
 
-	if (event.url.pathname.startsWith("/dashboard")) {
 
-		//if there is no session redirect to login page
-		if (!session) {
-			throw redirect(302, "/login");
-		}
-		
-	}
+	// if (event.url.pathname.startsWith("/dashboard")) {
+
+	// 	//if there is no session redirect to login page
+	// 	if (!session) {
+	// 		throw redirect(302, "/login");
+	// 	}
+
+	// }
 
 	if (event.url.pathname.startsWith("/admin")) {
 		//if there is no session or the session role is not ADMIN or GOD redirect to home page

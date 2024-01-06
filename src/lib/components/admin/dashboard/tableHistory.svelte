@@ -90,7 +90,7 @@
 	});
 
 	async function getHistory() {
-		const response = await fetch('api/admin/history', {
+		const response = await fetch('/api/admin/history', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

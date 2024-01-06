@@ -12,7 +12,7 @@ async function main() {
                     price: 10,
                     description: `The Nano account is expertly designed for individuals or businesses who find themselves updating their products only a few times each month. This account type is ideal for those who require a no-frills, straightforward service without the need for extensive daily updates.`,
                     list: `[
-                        "5 discription per month",
+                        "10 discription per month",
                         "Basic to creative style writing", 
                         "Small medium and large text length"
                         ]`,

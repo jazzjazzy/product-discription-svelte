@@ -22,7 +22,7 @@
 	};
 
 	onMount(async () => {
-		const data = await getUsers();
+		const data = await getSessions();
 
 		const fetchedData = data.user;
 		console.log('fetchedData', fetchedData);
@@ -54,8 +54,8 @@
 		};
 	});
 
-	async function getUsers() {
-		const response = await fetch('api/admin/sessions', {
+	async function getSessions() {
+		const response = await fetch('/api/admin/sessions', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

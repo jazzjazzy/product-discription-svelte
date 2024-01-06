@@ -13,9 +13,12 @@
 	import ResultsDescription from '$lib/components/dashboard/results/resultsDescription.svelte';
 	import ResultsKeywords from '$lib/components/dashboard/results/resultKeywords.svelte';
 	import ResultsJson from '$lib/components/dashboard/results/resultJson.svelte';
+	import FailWarning from '$lib/components/failWarning.svelte';
 
 	export let data: PageData;
 	export let form: ActionData;
+
+	let monthlyLimit = data.monthlyLimit;
 
 	let errorImage: string | null = null;
 	let errorStoreDesc: string | null = null;
@@ -56,8 +59,12 @@
 	let keywordLength = 20;
 	let clearKeywords = ''; //keywords without the ones that are more than 20 characters
 	//outgoing data to description product
-	let productDescription = '';
-	let storeDescription = '';
+	//let productDescription = '';
+	//let storeDescription = '';
+	let productDescription =
+		'This is a dice tower with an inbuilt tray made from cherry wood and lined with a blue felt';
+	let storeDescription =
+		'we are a store that sells equipment for board games, dice games and role-playing games, we sell dice towers and dice trays hand-made from exotic wood species ';
 
 	let imageIsUpload = false;
 
@@ -111,25 +118,22 @@
 
 		let hasError = false;
 
-		console.log('generateProductDiscription');
-		console.log('imageUrl', imageUrl);
 		if (!imageUrl) {
 			errorImage =
 				'Please upload or add Url of an image that requires a discription to be generated';
 			hasError = true;
 		}
-		console.log('storeDescription', storeDescription);
+
 		if (!storeDescription) {
 			errorStoreDesc = 'Please enter a store description to help expand on the product description';
 			hasError = true;
 		}
-		console.log('productDescription', productDescription);
+
 		if (!productDescription) {
 			errorProductDesc =
 				'Please enter a product description to help us to detemine the products style, features and benefits';
 			hasError = true;
 		}
-		console.log('hasError', hasError);
 
 		if (hasError) return;
 
@@ -158,7 +162,8 @@
 					storeDescription,
 					temperature,
 					charatorCount,
-					token: sessionId
+					token: sessionId,
+					plan: plan
 				})
 			});
 
@@ -166,7 +171,8 @@
 
 			if (status === 200) {
 				//const { results } = JSON.parse(body);
-				const { product_title, product_description, product_keywords } = body;
+				const { product_title, product_description, product_keywords } = body.etsyDescription;
+				monthlyLimit = body.monthlyLimit;
 
 				// count characters for title and description
 				pageDescriptionCount = product_description.length;
@@ -195,7 +201,6 @@
 		buttonString = 'Write New Copy';
 	}
 </script>
-
 
 <main class="main">
 	<div class="px-7">
@@ -316,62 +321,26 @@
 						{/if}
 					</div>
 				</div>
-				<div class="w-full p-6">
+				<div class="w-full">
 					{#if errorImage}
-						<aside
-							class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-							role="alert"
-						>
-							<!-- Flex container for icon and text -->
-							<span class="flex items-center">
-								<!-- Icon -->
-								<Icon icon="material-symbols:warning-outline" class="text-4xl" />
-
-								<!-- Text Message -->
-								<span class="ml-2">Please upload or add Url of an <strong>Image</strong> that requires a discription to be generated.</span>
-							</span>
-
-							<!-- Additional actions or content can go here -->
-						</aside>
+						<FailWarning
+							errorMessage={'Please upload or add Url of an <strong>Image</strong> that requires a discription to be generated.'}
+						/>
 					{/if}
 					{#if errorStoreDesc}
-						<aside
-							class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-1 rounded relative"
-							role="alert"
-						>
-							<!-- Flex container for icon and text -->
-							<span class="flex items-center">
-								<!-- Icon -->
-								<Icon icon="material-symbols:warning-outline" class="text-4xl" />
-
-								<!-- Text Message -->
-								<span class="ml-2">Please enter a <strong>Store Description</strong> to help expand on the product description</span>
-							</span>
-
-							<!-- Additional actions or content can go here -->
-						</aside>
+						<FailWarning
+							errorMessage={'Please enter a <strong>Store Description</strong> to help expand on the product description'}
+						/>
 					{/if}
 					{#if errorProductDesc}
-						<aside
-							class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-1 rounded relative"
-							role="alert"
-						>
-							<!-- Flex container for icon and text -->
-							<span class="flex items-center">
-								<!-- Icon -->
-								<Icon icon="material-symbols:warning-outline" class="text-4xl" />
-
-								<!-- Text Message -->
-								<span class="ml-2">Please enter a <strong>Product Description</strong> to help us to detemine the product style features and benefits</span>
-							</span>
-
-							<!-- Additional actions or content can go here -->
-						</aside>
+						<FailWarning
+							errorMessage={'Please enter a <strong>Product Description</strong> to help us to detemine the product style features and benefits'}
+						/>
 					{/if}
 				</div>
 
 				<div class="w-full">
-					{#if !data.monthlyLimit}
+					{#if !monthlyLimit}
 						<div class="flex justify-center">
 							<button
 								class="btn variant-filled my-2 w-4/6 text-fuchsia-400"
@@ -387,6 +356,36 @@
 									/>
 								{/if}
 							</button>
+						</div>
+					{:else if !plan}
+						<div class="flex justify-center text-center p-6">
+							<div class="border border-amber-500 rounded-md bg-amber-100 p-3">
+								<p class="mb-6">
+									You have reached your monthly limit of <strong>3</strong> description per Month, to
+									continue please upgrade to a payed account
+								</p>
+								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a>
+							</div>
+						</div>
+						{:else if plan == "Nano"}
+						<div class="flex justify-center text-center">
+							<div class="w-1/2 border border-slate-500 rounded-md bg-red-100 p-3">
+								<p class="mb-6">
+									You have reached your monthly limit of <strong>10</strong> description per Month, to
+									continue please upgrade to a Pro or Ultra account
+								</p>
+								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a>
+							</div>
+						</div>
+						{:else if plan == "Pro"}
+						<div class="flex justify-center text-center">
+							<div class="w-1/2 border border-slate-500 rounded-md bg-red-100 p-3">
+								<p class="mb-6">
+									You have reached your monthly limit of <strong>3</strong> description per Month, to
+									continue please upgrade to a Ultra account
+								</p>
+								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a>
+							</div>
 						</div>
 					{/if}
 					<card-title>
