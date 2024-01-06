@@ -56,7 +56,6 @@ export async function validateBySessionId(token: string) {
 export async function countMonthlyDescriptions(userId: string) {
     const currentDate = new Date();
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    console.log('firstDayOfMonth', firstDayOfMonth);
 
     return await prisma.descriptionHistory.count({
         where: {
@@ -77,25 +76,23 @@ export async function countMonthlyDescriptions(userId: string) {
  */
 
 export async function isPlanLimitReached(userId: string , plan: string) {
-    console.log('userId', userId);
+
+    // ultra plan has no limit so return false 
+    if (plan === 'Ultra') { return false }
+    // if no plan is set then set to free
+    if(!plan) { plan = 'Free' }
+   
     let totalRecordsThisMonth = await countMonthlyDescriptions(userId);
-    console.log('totalRecordsThisMonth', totalRecordsThisMonth);
-    let monthlyLimit = false;
     
-    //TODO: add amount of description to the pricing table so we are not hard coding it
+    let monthlyLimit = false;
 
-    //check if user has reached the monthly limit
-    if (!plan && totalRecordsThisMonth >= 3) {
-        monthlyLimit = true;
-        console.log('monthlyLimit', 3);
-    } else if (plan === 'Nano' && totalRecordsThisMonth >= 10) {
-        monthlyLimit = true;
-        console.log('monthlyLimit', 3);
-    } else if (plan === 'Pro' && totalRecordsThisMonth >= 50) {
-        monthlyLimit = true;
-        console.log('monthlyLimit', 3);
+    const pricing = await prisma.pricing.findFirst({ where: { name: plan }, select: { limit: true }});
+
+    if(!pricing) { 
+        throw new Error('No pricing plan found - can\'t determine limit');
     }
-    //ultra plan has no limit
-    return monthlyLimit;
 
+    if (totalRecordsThisMonth >= pricing.limit) { monthlyLimit = true }
+    
+    return monthlyLimit;
 }

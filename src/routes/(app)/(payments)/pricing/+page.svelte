@@ -25,11 +25,25 @@
 					<card-header>
 						<h1 class="text-xl md:text-2xl lg:text-4xl w-full">{price.name}</h1>
 						<h3 class="flex justify-center text-3xl sm:text-5-xl lg:text-6xl w-full pl-6">
-							<div><span class="pr-2">${price.price}</span><span class="text-lg pl-0">a month</span></div>
+							{#if price.price == 0}
+								<div>Free!</div>
+							{:else}
+								<div>
+									<span class="pr-2">${price.price}</span><span class="text-lg pl-0">a month</span>
+								</div>
+							{/if}
 						</h3>
 					</card-header>
 					<card-body>
 						<div class="py-3">{price.description}</div>
+						<div class="py-3 font-bold">
+							<div>
+								<Icon icon="heroicons-solid:thumb-up" class="inline" /><span
+									class="pl-2 h-full text-center"
+									>{price.limit ? price.limit : 'Unlimited'} discription per month</span
+								>
+							</div>
+						</div>
 						{#each JSON.parse(price.list) as listItem}
 							<div class="py-3 font-bold">
 								<div>
@@ -41,31 +55,35 @@
 						{/each}
 					</card-body>
 					<card-footer class="flex justify-center">
-						<!-- user is loggined in a has a subscription already -->
-						{#if currSubscription && loggedIn}
-							{#if currSubscription == price.name}
-								<!-- show users current  -->
-								<div class=" border-4 border-x-orange-500 text-primary-900 p-3 rounded-lg">
-									Current Subscription
-								</div>
+						{#if price.price !== 0}
+							<!-- user is loggined in a has a subscription already -->
+							{#if currSubscription && loggedIn}
+								{#if currSubscription == price.name}
+									<!-- show users current  -->
+									<div class="text-xl text-orange-500 text-primary-900 p-3 ">
+										Current Subscription
+									</div>
+								{:else}
+									<!-- show upgrade/downgrade option  -->
+									<a
+										data-sveltekit-reload
+										href="/checkout/payment?subtype={currSubscription.toLocaleLowerCase()}&update={price.name}"
+										class="btn variant-ringed-primary rounded-lg">Change to {price.name}</a
+									>
+								{/if}
+							{:else if !loggedIn}
+								<!--if not signed in get user to registor-->
+								<a href="/signup" class="btn variant-ringed-primary rounded-lg">Sign-up</a>
 							{:else}
-								<!-- show upgrade/downgrade option  -->
+								<!--if signed in and no subscription allow to purchase -->
 								<a
 									data-sveltekit-reload
-									href="/checkout/payment?subtype={currSubscription.toLocaleLowerCase()}&update={price.name}"
-									class="btn variant-ringed-primary rounded-lg">Change to {price.name}</a
+									href="/checkout/payment?subtype={price.name.toLocaleLowerCase()}"
+									class="btn variant-ringed-primary rounded-lg">Purchase {price.name}</a
 								>
 							{/if}
-						{:else if !loggedIn}
-							<!--if not signed in get user to registor-->
-							<a href="/signup" class="btn variant-ringed-primary rounded-lg">Sign-up</a>
 						{:else}
-							<!--if signed in and no subscription allow to purchase -->
-							<a
-								data-sveltekit-reload
-								href="/checkout/payment?subtype={price.name.toLocaleLowerCase()}"
-								class="btn variant-ringed-primary rounded-lg">Purchase {price.name}</a
-							>
+							&NonBreakingSpace;
 						{/if}
 					</card-footer>
 				</card-main>

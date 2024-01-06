@@ -4,6 +4,7 @@ export type Pricing = {
     id: string;
     name: string;
     price: number;
+    limit: number;
     description?: string;
     list: string;
     stripe_price_id: string;
