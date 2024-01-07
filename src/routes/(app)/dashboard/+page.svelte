@@ -182,7 +182,7 @@
 
 			if (status === 200) {
 				//const { results } = JSON.parse(body);
-				const { product_title, product_description, product_keywords } = body.etsyDescription;
+				const { product_title, product_description, product_keywords } = body.result.etsyDescription;
 				monthlyLimit = body.monthlyLimit;
 
 				// count characters for title and description
@@ -194,7 +194,7 @@
 				pageKeywords = formateKeywordstring(product_keywords, keywordLength);
 				clearKeywords = product_keywords;
 
-				pageJson = JSON.stringify(body, null, 4);
+				pageJson = JSON.stringify(body.result.etsyDescription, null, 4);
 
 				//set to editable as we have a result
 				isEditable = true;
@@ -382,7 +382,7 @@
 						<div class="flex justify-center text-center">
 							<div class="w-1/2 border border-slate-500 rounded-md bg-red-100 p-3">
 								<p class="mb-6">
-									You have reached your monthly limit of <strong>10</strong> description per Month, to
+									You have reached your monthly limit of <strong>20</strong> description per Month, to
 									continue please upgrade to a Pro or Ultra account
 								</p>
 								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a

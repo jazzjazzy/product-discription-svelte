@@ -19,6 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
             charatorCountSet = 500;
             temperatureSet = 0.2;
         }
+
         // note: token is the session id, just tring to obfuscate what it really is
         const user: validSession = await validateBySessionId(token)
 
@@ -32,8 +33,10 @@ export const POST: RequestHandler = async ({ request }) => {
                 },
             });
         }
+
         // this is user.user_id as that what its called in the database, not user.userId
-        let monthlyLimit = isPlanLimitReached(user.user_id, plan)
+        let monthlyLimit = await isPlanLimitReached(user.user_id, plan)
+
 
         const imageDescription = await getImageDescription(productDescription, imageUrl)
 
@@ -114,7 +117,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
         return json({
             status: 200,
-            body: { etsyDescription, monthlyLimit }
+            body: { result: { etsyDescription }, monthlyLimit }
         });
     } catch (error) {
         console.error('Error executing script:', error);
