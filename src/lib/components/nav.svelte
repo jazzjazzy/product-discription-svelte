@@ -14,33 +14,22 @@
 	<div class="grid grid-cols-12 border-2 mb-4 bg-white">
 		<div class="col-span-5 flex place-content-start p-4">
 			<div class="font-sans">
-				<!-- do these later
-                <div class="btn-lg inline-block">
-                    <a href="/forum"><div class="text-2xl">Forum</div></a>
-                </div>
-                <div class="btn-lg inline-block">
-                    <a href="/faq"><div class="text-2xl">FAQ</div></a>
-                </div>
-                <div class="btn-lg inline-block">
-                    <a href="/blog"><div class="text-2xl">Blog</div></a>
-                </div>
-            -->
 				{#if data.plan === 'Pro' || data.plan === 'Ultra' || adminGod}
-					<div class="btn-lg inline-block">
-						<a href="/Setting"><div class="text-2xl">Setting</div></a>
-					</div>
-					<div class="btn-lg inline-block">
+					<!--<div class="btn-lg inline-block">
+						<a href="/faq"><div class="text-2xl">FAQ</div></a>
+					</div> -->
+					<div class="btn-lg inline-block border-b-2 border-b-white hover:border-b-orange-500">
 						<a href="/history"><div class="text-2xl">History</div></a>
 					</div>
 				{/if}
-				<div class="btn-lg inline-block">
-					<a href="/dashboard"><div class="text-2xl">Dashboard</div></a>
-				</div>
-				<div class="btn-lg inline-block">
+				<div class="btn-lg inline-block border-b-2 border-b-white hover:border-b-orange-500">
 					<a href="/pricing"><div class="text-2xl">Pricing</div></a>
 				</div>
+				<div class="btn-lg pb-0.5 inline-block  border-b-2 border-b-white hover:border-b-orange-500">
+					<a href="/dashboard" class="btn variant-ghost-primary rounded-md m-0"><div class="text-2xl">Generate</div></a>
+				</div>
 				{#if adminGod}
-					<div class="btn-lg inline-block">
+					<div class="btn-lg inline-block  border-b-2 border-b-white hover:border-b-orange-500">
 						<a href="/admin"><div class="text-2xl">Admin</div></a>
 					</div>
 				{/if}

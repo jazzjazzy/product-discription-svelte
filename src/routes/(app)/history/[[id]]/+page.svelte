@@ -9,21 +9,17 @@
 
 	let tableSimple: TableSource = {
 		head: [
-			'store_type',
-			'image_location',
-			'image_type',
-			'image_description',
-			'shop_description',
-			'product_description',
-			'charactor_size',
-			'temperature',
-			'generated_title',
-			'generated_description',
-			'generated_keywords',
-			'count_title',
-			'count_description',
-			'generated_json',
-			'created'
+			'image',
+			'shop des',
+			'product',
+			'char size',
+			'temp',
+			'title',
+			'description',
+			'keywords',
+			'count title',
+			'count description',
+			'date'
 		],
 		body: [],
 		meta: [],
@@ -31,14 +27,12 @@
 	};
 	onMount(async () => {
 		const fetchedData = data.historyList;
+		const historyCount = data.historyList.length;
 
 		tableSimple = {
 			...tableSimple,
 			body: tableMapperValues(fetchedData, [
-				'store_type',
 				'image_location',
-				'image_type',
-				'image_description',
 				'shop_description',
 				'product_description',
 				'charactor_size',
@@ -67,7 +61,7 @@
 				'count_description',
 				'created_at'
 			]),
-			foot: ['Total', '', `<code class="code"></code>`]
+			foot: ['Total', '', `<code class="code">${historyCount}</code>`]
 		};
 	});
 
