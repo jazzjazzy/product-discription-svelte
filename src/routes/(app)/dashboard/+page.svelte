@@ -80,7 +80,7 @@
 		}
 	}
 
-	if (form) {;
+	if (form) {
 		let { success: statusform, message: messageform, url: urlform, type } = form;
 		if (statusform && urlform) {
 			imageUrl = urlform;
@@ -169,7 +169,6 @@
 				},
 				body: JSON.stringify({
 					imageUrl,
-					imageType,
 					productDescription,
 					storeDescription,
 					temperature,
