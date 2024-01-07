@@ -9,7 +9,7 @@ import { validateBySessionId, isPlanLimitReached } from '$lib/helpers/user'
 
 export const POST: RequestHandler = async ({ request }) => {
     try {
-        const { imageUrl, storeDescription, productDescription, temperature, charatorCount, storeType, token, plan } = await request.json()
+        const { imageUrl, imageType, storeDescription, productDescription, temperature, charatorCount, storeType, token, plan } = await request.json()
 
         let charatorCountSet = charatorCount;
         let temperatureSet = temperature;

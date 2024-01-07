@@ -1,12 +1,11 @@
 import type { Actions } from './$types';
 import type { PageServerLoad } from './$types';
-import { writeFile } from 'fs/promises';
-import fs from 'fs';
-import path from 'path';
 import sharp from 'sharp';
-import prisma from '$lib/server/prisma';
 import { redirect } from '@sveltejs/kit';
 import { isPlanLimitReached } from '$lib/helpers/user';
+import { Storage } from '@google-cloud/storage';
+import { BUCKET_KEY_FILE, BUCKET_URL, BUCKET_NAME } from '$env/static/private';
+import { Buffer } from 'buffer';
 
 /**
  * varaibles
@@ -20,10 +19,10 @@ import { isPlanLimitReached } from '$lib/helpers/user';
 export const load = (async ({ locals }) => {
   let session = await locals.auth.validate(); // get the session from the auth request
 
-	if (!session) throw redirect(302, "/login");
-	if (!session.user.emailVerified) {
-		throw redirect(302, "/email-verification");
-	}
+  if (!session) throw redirect(302, "/login");
+  if (!session.user.emailVerified) {
+    throw redirect(302, "/email-verification");
+  }
 
   let monthlyLimit = isPlanLimitReached(session.user.userId, session.plan)
   // we need the session id to send as part of api/discriptor request so we can get the user id on the sever side
@@ -44,20 +43,11 @@ export const actions: Actions = {
   upload: async ({ request }) => {
 
     const data = await request.formData();
-    const file = data.get('file') as File; // value of 'name' attribute of input
+    const file = data.get('file') as File;
 
     if (!file) {
-      return { success: false, message: 'File type not accepted.' };
+      return { success: false, message: 'No file provided.' };
     }
-
-    const directoryPath = './static/uploads';
-
-    //create directory if it doesn't exist
-    if (!fs.existsSync(directoryPath)) {
-      fs.mkdirSync(directoryPath, { recursive: true });
-    }
-
-    const filePath = path.join(directoryPath, file.name);
 
     const acceptedFileTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/avif'];
 
@@ -65,37 +55,106 @@ export const actions: Actions = {
       return { success: false, message: 'File type not accepted.' };
     }
 
-    await writeFile(filePath, file.stream());
+    const keyJson = JSON.parse(BUCKET_KEY_FILE);
+    const storage = new Storage({ credentials: keyJson });
+    const bucketName = BUCKET_NAME;
+    const bucket = storage.bucket(bucketName);
+    try {
+      // Function to convert a stream to a buffer
+      const streamToBuffer = async (stream: any) => {
+        const reader = stream.getReader();
+        let chunks = [];
 
-    //if file is not an jpg then we convert it to jpg
-    if (['image/png', 'image/webp', 'image/avif'].includes(file.type)) {
-      // get the file type from the Mime type
-      let fileType = '.' + (file.type).split('/').pop();
-      //get the input file path
-      let inputtfile = `./static/uploads/${file.name}`;
-      //get the output file path
-      let outputPath = inputtfile.replace(fileType, '.jpg')
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+        }
 
-      let filename = (outputPath).split('/').pop();
+        return Buffer.concat(chunks);
+      };
 
-      //convert file to jpg
-      await sharp(inputtfile)
-        .toFormat('jpeg')
-        .toFile(outputPath, (err, info) => {
-          if (err) {
-            return { status: false, body: { message: 'Error:', err: err } }
-          } else {
-            return { status: true, body: { message: 'File converted successfully:', info: info } }
-          }
-        });
+      const fileName = file.name;
+      const fileStream = file.stream();
+      const buffer = await streamToBuffer(fileStream);
 
+      let filePath = fileName;
+      if (['image/png', 'image/webp', 'image/avif'].includes(file.type)) {
 
+        filePath = `converted-${filePath.split('.').slice(0, -1).join('.')}.jpg`;
+        const convertedBuffer = await sharp(buffer).jpeg().toBuffer();
+        await bucket.file(filePath).save(convertedBuffer);
+        //await bucket.file(filePath).makePublic();  // Make the file public
 
-      return { status: true, message: filename };
+      } else {
+        await bucket.file(fileName).save(buffer);
+        //await bucket.file(fileName).makePublic();  // Make the file public
+        filePath = fileName;  // Set filePath to fileName for public URL generation
+      }
+
+      const publicUrl = `${BUCKET_URL}/${bucketName}/${filePath}`;
+      console.log(publicUrl);
+
+      return {
+        success: true,
+        message: 'File uploaded successfully.',
+        url: publicUrl,
+        type: 'file'
+      };
+    } catch (error) {
+      return { success: false, message: error.message };
     }
 
-    let filename = (filePath).split('/').pop();
+  },
+  imageUrl: async ({ request }) => {
+    const data = await request.formData();
+    const link = data.get('imageUrl');
 
-    return { success: true, message: filename };
-  }
+    if (typeof link !== 'string') {
+      console.log('File type not accepted.');
+      return { success: false, message: 'Invalid URL provided.' };
+    }
+
+    try {
+      const response = await fetch(link);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${link}: ${response.statusText}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      const acceptedFileTypes = ['image/png', 'image/webp', 'image/avif', 'image/jpg', 'image/jpeg'];
+      
+      if (!contentType || !acceptedFileTypes.includes(contentType)) {
+        console.log('File type not accepted.' + contentType)
+        return { success: false, message: 'File type not accepted.' };
+      }
+
+      const buffer = await response.arrayBuffer();
+      const bucketName = BUCKET_NAME; // Replace with your bucket name
+      const keyJson = JSON.parse(BUCKET_KEY_FILE); // Your Google Cloud credentials
+
+      const storage = new Storage({ credentials: keyJson });
+      const bucket = storage.bucket(bucketName);
+      let fileName = link.split('/').pop().split('.')[0] + '.jpg';
+
+      // Convert to JPEG
+      const convertedBuffer = await sharp(Buffer.from(buffer))
+        .jpeg()
+        .toBuffer();
+
+      await bucket.file(fileName).save(convertedBuffer, {
+        contentType: 'image/jpeg',
+      });
+
+      const publicUrl = `${BUCKET_URL}/${bucketName}/${fileName}`;
+      return {
+        success: true,
+        message: 'File uploaded successfully.',
+        url: publicUrl,
+        type: 'file',
+      };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
 }
