@@ -56,7 +56,7 @@ export const GET = async ({ url, cookies, locals }) => {
 		});
 	} catch (e) {
 		if (e instanceof OAuthRequestError) {
-			throw error(401, "Unauthorized - could not connect to Facebook oAuth with current one time code");
+			throw error(401, "Unauthorized - could not connect to Google oAuth with current one time code");
 		}
 
 		if (e instanceof PrismaClientKnownRequestError && e.code == "P2002") {
@@ -65,8 +65,9 @@ export const GET = async ({ url, cookies, locals }) => {
 			throw redirect(302, '/login');
 		}
 
-		return new Response(null, {
+		console.error(e);
 
+		return new Response(null, {
 			status: 500
 		});
 	}
