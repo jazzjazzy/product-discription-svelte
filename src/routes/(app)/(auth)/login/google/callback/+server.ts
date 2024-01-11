@@ -65,6 +65,7 @@ export const GET = async ({ url, cookies, locals }) => {
 			throw redirect(302, '/login');
 		}
 
+		
 		console.error(e);
 
 		return new Response(null, {
