@@ -85,7 +85,7 @@ export const POST: RequestHandler = async ({ request }) => {
             let pageDescription = product_description;
             let pageKeywords = product_keywords;
             try {
-                const newHistory = await prisma.descriptionHistory.create({
+                await prisma.descriptionHistory.create({
                     data: {
                         user_id: user?.user_id,
                         store_type: 'etsy',
