@@ -164,7 +164,14 @@
 {:else if data.historyList !== null && data.historyList.length > 0}
 	<Table interactive={true} source={tableSimple} on:selected={clicklink} />
 {:else}
-	<p>No history found</p>
+	<card-main>
+		<card-header>
+			<h1>History Record</h1>
+		</card-header>
+		<card-body>
+			<div class="text-lg p-5 text-center font-semibold">You currently have no history</div>
+		</card-body>
+	</card-main>
 {/if}
 
 <style>
