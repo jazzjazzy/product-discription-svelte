@@ -103,8 +103,6 @@ export async function getImageDescription(productDescription: string, imageDes: 
             apiKey: OPENAI_API_KEY, // Replace with your actual API key
         });
 
-        let imageBase64 = encodeImageToBase64(imageDes);
-
         // Upload the image
         const chatCompletion = await openai.chat.completions.create({
             "model": "gpt-4-vision-preview",
@@ -123,7 +121,8 @@ export async function getImageDescription(productDescription: string, imageDes: 
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": `data:image/jpeg;base64,${imageBase64}`
+                                //"url": `data:image/jpeg;base64,${imageBase64}`
+                                "url": `${imageDes}`
                             }
                         }
                     ]
