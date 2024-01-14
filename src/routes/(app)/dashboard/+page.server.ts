@@ -40,7 +40,10 @@ export const load = (async ({ locals }) => {
  */
 
 export const actions: Actions = {
-  upload: async ({ request }) => {
+  upload: async ({ request, locals }) => {
+    let session = await locals.auth.validate();
+    let userId = session.user.userId;
+    let uuid = generateShortUUID();
 
     const data = await request.formData();
     const file = data.get('file') as File;
@@ -78,22 +81,20 @@ export const actions: Actions = {
       const fileStream = file.stream();
       const buffer = await streamToBuffer(fileStream);
 
-      let filePath = fileName;
+      let filePath = `${userId}/${uuid}-${fileName}`;
       if (['image/png', 'image/webp', 'image/avif'].includes(file.type)) {
 
-        filePath = `converted-${filePath.split('.').slice(0, -1).join('.')}.jpg`;
+        filePath = `${userId}/${uuid}-${filePath.split('.').slice(0, -1).join('.')}.jpg`;
+        console.log("filePath 2", filePath);
         const convertedBuffer = await sharp(buffer).jpeg().toBuffer();
         await bucket.file(filePath).save(convertedBuffer);
         //await bucket.file(filePath).makePublic();  // Make the file public
 
       } else {
-        await bucket.file(fileName).save(buffer);
-        //await bucket.file(fileName).makePublic();  // Make the file public
-        filePath = fileName;  // Set filePath to fileName for public URL generation
+        await bucket.file(filePath).save(buffer);
       }
 
       const publicUrl = `${BUCKET_URL}/${bucketName}/${filePath}`;
-      console.log(publicUrl);
 
       return {
         success: true,
@@ -106,7 +107,11 @@ export const actions: Actions = {
     }
 
   },
-  imageUrl: async ({ request }) => {
+  imageUrl: async ({ request, locals }) => {
+    let session = await locals.auth.validate();
+    let userId = session.user.userId;
+    let uuid = generateShortUUID();
+
     const data = await request.formData();
     const link = data.get('imageUrl');
 
@@ -123,7 +128,7 @@ export const actions: Actions = {
 
       const contentType = response.headers.get('content-type');
       const acceptedFileTypes = ['image/png', 'image/webp', 'image/avif', 'image/jpg', 'image/jpeg'];
-      
+
       if (!contentType || !acceptedFileTypes.includes(contentType)) {
         console.log('File type not accepted.' + contentType)
         return { success: false, message: 'File type not accepted.' };
@@ -137,16 +142,19 @@ export const actions: Actions = {
       const bucket = storage.bucket(bucketName);
       let fileName = link.split('/').pop().split('.')[0] + '.jpg';
 
+      // Create a new filename with a uuid prefix and put in user's folder
+      let filePath = `${userId}/${uuid}-${fileName}`;
+
       // Convert to JPEG
       const convertedBuffer = await sharp(Buffer.from(buffer))
         .jpeg()
         .toBuffer();
 
-      await bucket.file(fileName).save(convertedBuffer, {
+      await bucket.file(filePath).save(convertedBuffer, {
         contentType: 'image/jpeg',
       });
 
-      const publicUrl = `${BUCKET_URL}/${bucketName}/${fileName}`;
+      const publicUrl = `${BUCKET_URL}/${bucketName}/${filePath}`;
       return {
         success: true,
         message: 'File uploaded successfully.',
@@ -158,3 +166,14 @@ export const actions: Actions = {
     }
   },
 }
+
+
+function generateShortUUID(length = 6) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
