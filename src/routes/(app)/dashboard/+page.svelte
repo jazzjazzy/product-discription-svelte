@@ -35,7 +35,7 @@
 	let success: boolean = false;
 	let message: string = '';
 
-	let imageUrl = '';
+	let imageUrl: string = '';
 	let tabSet: number = 0;
 
 	let pageDescription = '';
@@ -81,13 +81,14 @@
 	}
 
 	if (form) {
-		let { success: statusform, message: messageform } = form;
-		if (statusform) {
-			imageUrl = messageform;
+		let { success: statusform, message: messageform, url: urlform, type } = form;
+		if (statusform && urlform) {
+			imageUrl = urlform;
 			handleImageTab(true);
 		}
 		success = statusform;
 		message = messageform;
+		type = type;
 	}
 
 	/**
@@ -102,6 +103,16 @@
 	async function handleUpload() {
 		const form = document.getElementById('uploadForm') as HTMLFormElement;
 		form.submit();
+	}
+
+	async function handleImage(isUpload: boolean) {
+		if (imageUrl) {
+			if (typeof window !== 'undefined') {
+				const form = document.getElementById('autoSubmitForm') as HTMLFormElement;
+				form.submit();
+				handleImageTab(true);
+			}
+		}
 	}
 
 	/**
@@ -171,7 +182,7 @@
 
 			if (status === 200) {
 				//const { results } = JSON.parse(body);
-				const { product_title, product_description, product_keywords } = body.etsyDescription;
+				const { product_title, product_description, product_keywords } = body.result.etsyDescription;
 				monthlyLimit = body.monthlyLimit;
 
 				// count characters for title and description
@@ -183,7 +194,7 @@
 				pageKeywords = formateKeywordstring(product_keywords, keywordLength);
 				clearKeywords = product_keywords;
 
-				pageJson = JSON.stringify(body, null, 4);
+				pageJson = JSON.stringify(body.result.etsyDescription, null, 4);
 
 				//set to editable as we have a result
 				isEditable = true;
@@ -283,23 +294,22 @@
 												<div class="w-full text-center text-xs mt-1">
 													link to an image that requires a discription to be generated
 												</div>
-												<input
-													type="text"
-													class="w-full mt-3 px-3 rounded-lg border-sky-100 border-black"
-													bind:value={imageUrl}
-													on:input={handleImageTab(false)}
-													placeholder="https:// Enter image url"
-												/><br />
+												<form id="autoSubmitForm" method="post" action="?/imageUrl" use:enhance>
+													<input
+														type="text"
+														name="imageUrl"
+														class="w-full mt-3 px-3 rounded-lg border-sky-100 border-black"
+														bind:value={imageUrl}
+														on:change={handleImage(false)}
+														placeholder="https:// Enter image url"
+													/>
+												</form>
 											</div>
 										</div>
 									</div>
 								{:else if tabSet === 2}
 									{#if imageUrl !== ''}
-										{#if imageIsUpload}
-											<img src="/uploads/{imageUrl}" alt="original" />
-										{:else if imageUrl.includes('http')}
-											<img src={imageUrl} alt="original" />
-										{/if}
+										<img src={imageUrl} alt="original" />
 									{/if}
 								{/if}
 							</svelte:fragment>
@@ -364,27 +374,30 @@
 									You have reached your monthly limit of <strong>3</strong> description per Month, to
 									continue please upgrade to a payed account
 								</p>
-								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a>
+								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a
+								>
 							</div>
 						</div>
-						{:else if plan == "Nano"}
+					{:else if plan == 'Nano'}
 						<div class="flex justify-center text-center">
 							<div class="w-1/2 border border-slate-500 rounded-md bg-red-100 p-3">
 								<p class="mb-6">
-									You have reached your monthly limit of <strong>10</strong> description per Month, to
+									You have reached your monthly limit of <strong>20</strong> description per Month, to
 									continue please upgrade to a Pro or Ultra account
 								</p>
-								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a>
+								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a
+								>
 							</div>
 						</div>
-						{:else if plan == "Pro"}
+					{:else if plan == 'Pro'}
 						<div class="flex justify-center text-center">
 							<div class="w-1/2 border border-slate-500 rounded-md bg-red-100 p-3">
 								<p class="mb-6">
 									You have reached your monthly limit of <strong>3</strong> description per Month, to
 									continue please upgrade to a Ultra account
 								</p>
-								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a>
+								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a
+								>
 							</div>
 						</div>
 					{/if}

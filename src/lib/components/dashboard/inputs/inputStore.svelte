@@ -6,16 +6,21 @@
 	import type { TableSource } from '@skeletonlabs/skeleton';
 	import { tableMapperValues } from '@skeletonlabs/skeleton';
 	import Dialog from '$lib/components/dialog.svelte';
+	import FailWarning from '$lib/components/failWarning.svelte';
 
 	export let storeDescription = '';
 	export let sessionId: string;
 	export let plan: string;
 
+	interface saveError {
+		title?: string;
+		description?: string;
+	}
+
 	let isSaveDialogOpen = false;
 	let isSelectDialogOpen = false;
 	let title = '';
-	let saveError: string[] = [];
-	let saveErrorMessage: string = '';
+	let saveError: saveError = {};
 	let tableSimple: TableSource = {
 		head: ['title', 'description', 'create'],
 		body: [],
@@ -80,19 +85,15 @@
 	}
 
 	async function saveDesc() {
-		saveErrorMessage = '';
 		if (title === '') {
-			saveError.push('Please give a title to your description');
+			saveError['title'] = 'Please give a title to your description';
 		}
 		if (storeDescription === '') {
-			saveError.push('Do not enter a blank description');
+			saveError['description'] = 'Do not enter a blank description';
 		}
-
-		if (saveError.length > 0) {
-			saveErrorMessage = saveError.join('<br />');
+		if (Object.keys(saveError).length > 0) {
 			return;
 		}
-
 		await fetch('/api/saveDesc', {
 			method: 'PUT',
 			headers: {
@@ -155,12 +156,15 @@
 			<div slot="header">Save Description</div>
 			<div slot="footer">
 				<button on:click={saveDesc} class="col-span-1 btn variant-filled-primary ml-3"
-					>save Description</button
+					>Save Description</button
 				>
 			</div>
 
 			<div class="my-3">
 				<input type="text" placeholder="Give description title here..." bind:value={title} />
+				{#if saveError.title}
+					<FailWarning errorMessage={saveError.title} />
+				{/if}
 			</div>
 			<div class="my-3">
 				<textarea
@@ -168,12 +172,10 @@
 					placeholder="Discribe your shop and what you sell here..."
 					class="w-full h-36 p-1 bg-gray-200 border-gray-300 focus:border-gray-400 focus:outline-0 focus:ring-1 rounded-xl"
 				/>
+				{#if saveError.description}
+					<FailWarning errorMessage={saveError.description} />
+				{/if}
 			</div>
-			{#if saveErrorMessage}
-				<div class="my-3">
-					<p class="text-red-500">{@html saveErrorMessage}</p>
-				</div>
-			{/if}
 		</Dialog>
 		<Dialog isOpen={isSelectDialogOpen} onClose={closeSelectDialog}>
 			<div slot="header">Select Description</div>

@@ -36,7 +36,7 @@ export const actions: Actions = {
 			if (storedUser.key[0].id){
 				let type = storedUser.key[0].id.split(":")[0];
 				if (type !== "email") {
-					await sendOAuthNotice(email, type);
+					await sendOAuthNotice(type, email);
 					return {
 						status: 200
 					};
