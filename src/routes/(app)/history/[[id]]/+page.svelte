@@ -128,28 +128,28 @@
 					</span>
 				</div>
 				<div>
-					<label
-						>Title:<span class="text-sm text-slate-400 p-10"
-							>({data.historyRecord.count_title} charactors long)</span
-						></label
-					>
-					<p>{data.historyRecord.generated_title}</p>
+					<div class="h3 pt-3">Title:
+						<span class="text-sm text-slate-400 p-10">
+							({data.historyRecord.count_title} charactors long)
+						</span>
+					</div>
+					<p class="pt-2">{data.historyRecord.generated_title}</p>
 				</div>
 				<div>
-					<label
+					<div  class="h3 pt-3"
 						>Description:<span class="text-sm text-slate-400 p-10"
 							>({data.historyRecord.count_description} charactors long)</span
-						></label
+						></div
 					>
-					<p>{data.historyRecord.generated_description}</p>
+					<p class="pt-2">{data.historyRecord.generated_description}</p>
 				</div>
 				<div>
-					<label>Keywords:</label>
-					<p>{data.historyRecord.generated_keywords}</p>
+					<div class="h3 pt-3">Keywords:</div>
+					<p class="pt-2">{data.historyRecord.generated_keywords}</p>
 				</div>
 				<div>
-					<label>Json:</label>
-					<div class="overflow-x-auto">
+					<div  class="h3 pt-3">Json:</div>
+					<div class="pt-2 overflow-x-auto">
 						<pre>{JSON.stringify(data.historyRecord.generated_json, null, 2)}</pre>
 					</div>
 				</div>
@@ -164,7 +164,14 @@
 {:else if data.historyList !== null && data.historyList.length > 0}
 	<Table interactive={true} source={tableSimple} on:selected={clicklink} />
 {:else}
-	<p>No history found</p>
+	<card-main>
+		<card-header>
+			<h1>History Record</h1>
+		</card-header>
+		<card-body>
+			<div class="text-lg p-5 text-center font-semibold">You currently have no history</div>
+		</card-body>
+	</card-main>
 {/if}
 
 <style>

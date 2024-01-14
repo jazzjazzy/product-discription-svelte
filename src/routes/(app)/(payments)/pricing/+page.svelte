@@ -9,6 +9,11 @@
 	let currSubscription: String | null | undefined = data.currSubscription;
 	let loggedIn: Boolean = !!data.userId;
 
+	// if user is logged there is no subscription and the user is not subscribed set currSubscription to 'Free'
+	if (loggedIn && !currSubscription) {
+		currSubscription = 'Free';
+	}
+
 	// set minumum columns to 1
 	let columns = 1;
 	// if there are more than 1 price, set columns to the number of prices
@@ -57,10 +62,11 @@
 					<card-footer class="flex justify-center">
 						{#if price.price !== 0}
 							<!-- user is loggined in a has a subscription already -->
-							{#if currSubscription && loggedIn}
+
+							{#if currSubscription && loggedIn && currSubscription !== 'Free'}
 								{#if currSubscription == price.name}
 									<!-- show users current  -->
-									<div class="text-xl text-orange-500 text-primary-900 p-3 ">
+									<div class="text-xl text-orange-500 text-primary-900 p-3">
 										Current Subscription
 									</div>
 								{:else}
@@ -82,8 +88,10 @@
 									class="btn variant-ringed-primary rounded-lg">Purchase {price.name}</a
 								>
 							{/if}
+						{:else if currSubscription === 'Free'}
+							<div class="text-xl text-orange-500 text-primary-900 p-3">Current Subscription</div>
 						{:else}
-							&NonBreakingSpace;
+							<div class="btn">&NonBreakingSpace;</div>
 						{/if}
 					</card-footer>
 				</card-main>
