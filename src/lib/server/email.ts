@@ -1,10 +1,19 @@
 import { Resend } from 'resend';
-import { RESEND_API_KEY, DOMAIN } from '$env/static/private';
+import { RESEND_API_KEY, DOMAIN, DEV_EMAIL } from '$env/static/private';
+import { dev } from '$app/environment';
 
 const resend = new Resend(RESEND_API_KEY);
 
+const devEmail = DEV_EMAIL
+
 export const sendEmailVerificationLink = async (token: string, email: string) => {
     const url = `${DOMAIN}/email-verification/${token}`;
+
+    // If we are in development mode, send the email to the developer instead
+    if (dev) {
+        email = "devEmail";
+    }
+
 
     try {
         await resend.emails.send({
@@ -22,6 +31,11 @@ export const sendEmailVerificationLink = async (token: string, email: string) =>
 export const sendOAuthNotice = async (type: string, email: string) => {
     const url = `${DOMAIN}/login/${type}`;
 
+    // If we are in development mode, send the email to the developer instead
+    if (devEmail) {
+        email = devEmail;
+    }
+
     try {
         await resend.emails.send({
             from: 'Dis-scription  <send@dis-scription.com>',
@@ -37,6 +51,11 @@ export const sendOAuthNotice = async (type: string, email: string) => {
 
 export const sendPasswordResetLink = async (token: string, email: string) => {
     const url = `${DOMAIN}/forgotten/${token}`;
+
+    // If we are in development mode, send the email to the developer instead
+    if (devEmail) {
+        email = devEmail;
+    }
 
     try {
         let sent = await resend.emails.send({
@@ -90,7 +109,7 @@ function getHTMLemail(type: string, link: string, oAuthType?: string) {
     } else {
         throw new Error("Invalid email type");
     }
-  
+
 
     return `
 <head>

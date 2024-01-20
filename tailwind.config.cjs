@@ -4,6 +4,7 @@ import type { Config } from 'tailwindcss';
 
 // 1. Import the Skeleton plugin
 import { skeleton } from '@skeletonlabs/tw-plugin';
+import { defineConfig } from 'vite';
 
 /** @type {import('tailwindcss').Config}*/
 const config = {
@@ -45,7 +46,14 @@ const config = {
 		'md:grid-cols-10',
 	],
 	theme: {
-		extend: {}
+		extend: {
+			fontFamily: {
+				sans: ['Montserrat', 'sans-serif'],
+				walkway: ['Walkway'],
+				lobster: ['Lobster Two'],
+				montserrat: ['Montserrat']
+			  }
+		}
 	},
 
 	plugins: [

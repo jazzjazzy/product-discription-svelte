@@ -37,7 +37,7 @@
 {#if errorMessage}
 	<p class="error">{errorMessage}</p>
 {/if}
-<div class="container py-10 px-4 flex justify-center">
+<div class="py-10 px-4 flex justify-center">
 	<div class="w-2/3 grid gap-7">
 		<card-main>
 			<card-header>

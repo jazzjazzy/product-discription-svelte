@@ -4,7 +4,7 @@
 	import '../app.postcss';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
-	import Nav from '$lib/components/nav.svelte';
+	import Nav from '$lib/components/nav/nav.svelte';
 
 	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -20,9 +20,9 @@
 		<div class="grid grid-cols-3 gap-4 w-3/5 my-10">
 			<div class="col-span-1">
 				<ul>
-					<li class=" hover:text-slate-300"><a href="#">Term of service</a></li>
-					<li><a href="#">Privacy Policy</a></li>
-					<li><a href="#">Cookies Policy</a></li>
+					<li class=" hover:text-slate-300"><a href="/policy/terms">Term of service</a></li>
+					<li><a href="/policy/privacy">Privacy Policy</a></li>
+					<li><a href="/policy/cookie">Cookies Policy</a></li>
 				</ul>
 			</div>
 			<div class="col-span-1">
@@ -32,7 +32,7 @@
 					<li><a href="#">Cookies Policy</a></li>
 				</ul>
 			</div>
-			<div class="col-span-1">dadsadadadadsa</div>
+			<div class="col-span-1"></div>
 		</div>
 	</footer>
 </content>
