@@ -214,13 +214,13 @@
 </script>
 
 <main class="main">
-	<div class="px-7">
+	<div class="lg:px-7">
 		<div class="card">
 			<div class="card-header p-6 mb-6 border-b-orange-500 border-b-2">
 				<h1 class="text-4xl">Dis.cription Assistant</h1>
 			</div>
-			<div class="cardbody px-5 pb-10">
-				<div class="grid gap-4 grid-cols-2">
+			<div class="cardbody px-0 lg:px-5 pb-10">
+				<div class="grid gap-4 grid-cols-1 md:grid-cols-2">
 					<div class="col-span-1">
 						<TabGroup>
 							<Tab bind:group={tabSet} name="tab1" value={0}>
@@ -353,7 +353,7 @@
 					{#if !monthlyLimit}
 						<div class="flex justify-center">
 							<button
-								class="btn variant-filled my-2 w-4/6 text-fuchsia-400"
+								class="btn variant-filled my-6 w-full shadow-lg shadow-slate-400 m-2 md:w-4/6 xl:w-2/6 text-fuchsia-400 rounded-lg"
 								on:click={generateProductDiscription}
 							>
 								{buttonString}
@@ -393,7 +393,7 @@
 						<div class="flex justify-center text-center">
 							<div class="w-1/2 border border-slate-500 rounded-md bg-red-100 p-3">
 								<p class="mb-6">
-									You have reached your monthly limit of <strong>3</strong> description per Month, to
+									You have reached your monthly limit of <strong>180</strong> description per Month, to
 									continue please upgrade to a Ultra account
 								</p>
 								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a
