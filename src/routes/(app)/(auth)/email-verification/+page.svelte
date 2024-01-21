@@ -3,7 +3,7 @@
 </script>
 
 <form method="post" use:enhance >
-	<div class="container py-10 px-4 flex justify-center">
+	<div class="py-10 px-4 flex justify-center">
 		<card-main class="flex justify-center">
 			<card-header>
 				<h1>Email Verification</h1>

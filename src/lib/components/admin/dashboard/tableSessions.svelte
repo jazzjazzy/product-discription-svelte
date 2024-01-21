@@ -25,7 +25,7 @@
 		const data = await getSessions();
 
 		const fetchedData = data.user;
-		console.log('fetchedData', fetchedData);
+
 		tableSimple = {
 			...tableSimple,
 			body: tableMapperValues(fetchedData, [

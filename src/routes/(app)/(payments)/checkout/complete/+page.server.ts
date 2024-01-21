@@ -3,7 +3,7 @@ import { redirect } from '@sveltejs/kit'
 import prisma from '$lib/server/prisma'
 
 export async function load({ url, locals }) {
-
+  const change = url.searchParams.get('change');
   const session = await locals.auth.validate()
 
   if (!session) {
@@ -15,7 +15,7 @@ export async function load({ url, locals }) {
 
 
   if(id === null) {
-    return { message: 'Success! Subscription has been updated.' }
+    return { message: 'Success! Subscription has been updated.', change: change }
   }
 
   // ask Stripe for latest info about this paymentIntent

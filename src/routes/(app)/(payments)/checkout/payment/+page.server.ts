@@ -4,6 +4,8 @@ import prisma from '$lib/server/prisma';
 import type { User as PrismaUser } from '$lib/types/user';
 import type { Subscription } from '$lib/types/subscription';
 import { redirect, error } from '@sveltejs/kit';
+import { auth } from "$lib/server/lucia";
+import { getUserlogin } from "$lib/helpers/user";
 
 /**
  * Handles the load process for the subscription page.
@@ -47,7 +49,7 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
   if (!user) {
     throw error(500, 'User not found, subscription could not be created');
   }
-  //console.log("v", user);
+
   // if the user has an active subscription and is not updating their subscription redirect to pricing page
   if (user?.subscription.length > 0 && (user?.subscription[0].stripe_status == 'active' || user?.subscription[0].stripe_status == 'trialing') && isupdate === null) {
     throw redirect(302, '/pricing');
@@ -122,12 +124,27 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
           stripe_customer_id: userSubscription.stripe_customer_id,
         },
         data: {
+          price_id: newPricing.id,
           stripe_status: subupdate.status,
           stripe_price_id: subupdate.plan.id,
-          type: isupdate.toLowerCase(),
+          type: newPricing.name,
         }
       });
-      throw redirect(302, '/checkout/complete');
+
+      //update the session and add the new plan
+      const { name, role, subscribed, plan } = await getUserlogin(session.user.userId);
+      const newSession = await auth.createSession({
+        userId: session.user.userId,
+        attributes: {
+          name,
+          role,
+          subscribed,
+          plan: newPricing.name,
+        }
+      });
+      locals.auth.setSession(newSession);
+
+      throw redirect(302, '/checkout/complete?change=true');
     }
   }
 
@@ -179,7 +196,7 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
       });
 
       clientSecret = setupIntent.client_secret
-    }else{
+    } else {
       clientSecret = subscription.latest_invoice.payment_intent.client_secret
     }
 
@@ -214,6 +231,6 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
         },
       });
     }
-    return  clientSecret ;
+    return clientSecret;
   }
 }

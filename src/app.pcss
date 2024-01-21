@@ -1,7 +1,19 @@
 /* Write your global styles here, in PostCSS syntax */
 @tailwind base;
+
+.backdrop {
+	background: rgb(var(--color-surface-200));
+}
+
+
 @tailwind components;
 @tailwind utilities;
+
+
+body, button, input, textarea, select {
+	@apply font-sans;
+  }
+
 
 @layer components {
 	card-main {
@@ -60,5 +72,52 @@
 		justify-content: flex-end;
 		padding: 1rem 2rem;
 	}
+
+	
 }
 
+@layer base {
+	@font-face {
+		font-family: 'Lobster Two';
+		src: local('Lobster Two'), local('Lobster-Two'), local('lobster two'), local('lobster-two'),
+			url('/fonts/lobster-two/LobsterTwo-Regular.otf');
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Lobster Two';
+		src: local('Lobster Two Bold'), local('Lobster-Two-Bold'), local('lobster two bold'),
+			local('lobster-two-bold'), url('/fonts/lobster-two/LobsterTwo-Bold.otf');
+		font-weight: bold;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Walkway';
+		src: local('Walkway'), local('walkway'), url('/fonts/Walkway/Walkway_Bold.ttf');
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Walkway';
+		src: local('Walkway'), local('walkway'), url('/fonts/Walkway/Walkway_Black.ttf');
+		font-weight: bold;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Montserrat';
+		src: local('Montserrat'), local('montserrat'), url('/fonts/montserrat/Montserrat-Italic-VariableFont_wght.ttf');
+		font-weight: normal;
+		font-display: swap;
+	}
+	@font-face {
+		font-family: 'Montserrat';
+		src: local('Montserrat'), local('montserrat'), url('/fonts/montserrat/Montserrat-VariableFont_wght.ttf');
+		font-weight: normal;
+		font-display: swap;
+	}
+
+	btn{
+		/**/
+		@apply font-montserrat font-semibold text-primary-800;
+	}
+}

@@ -128,7 +128,8 @@
 					</span>
 				</div>
 				<div>
-					<div class="h3 pt-3">Title:
+					<div class="h3 pt-3">
+						Title:
 						<span class="text-sm text-slate-400 p-10">
 							({data.historyRecord.count_title} charactors long)
 						</span>
@@ -136,11 +137,11 @@
 					<p class="pt-2">{data.historyRecord.generated_title}</p>
 				</div>
 				<div>
-					<div  class="h3 pt-3"
-						>Description:<span class="text-sm text-slate-400 p-10"
+					<div class="h3 pt-3">
+						Description:<span class="text-sm text-slate-400 p-10"
 							>({data.historyRecord.count_description} charactors long)</span
-						></div
-					>
+						>
+					</div>
 					<p class="pt-2">{data.historyRecord.generated_description}</p>
 				</div>
 				<div>
@@ -148,7 +149,7 @@
 					<p class="pt-2">{data.historyRecord.generated_keywords}</p>
 				</div>
 				<div>
-					<div  class="h3 pt-3">Json:</div>
+					<div class="h3 pt-3">Json:</div>
 					<div class="pt-2 overflow-x-auto">
 						<pre>{JSON.stringify(data.historyRecord.generated_json, null, 2)}</pre>
 					</div>
@@ -162,7 +163,9 @@
 		>
 	</card-main>
 {:else if data.historyList !== null && data.historyList.length > 0}
-	<Table interactive={true} source={tableSimple} on:selected={clicklink} />
+	<div class="text-xs">
+		<Table interactive={true} source={tableSimple} on:selected={clicklink} />
+	</div>
 {:else}
 	<card-main>
 		<card-header>

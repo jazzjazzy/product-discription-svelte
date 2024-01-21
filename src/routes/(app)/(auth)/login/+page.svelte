@@ -16,8 +16,8 @@
 	}
 </script>
 
-<div class="container flex justify-center">
-	<card-main class="w-1/2">
+<div class="flex justify-center">
+	<card-main class="w-full md:w-1/2">
 		<card-header>
 			<h1>{title}</h1>
 		</card-header>
@@ -25,11 +25,11 @@
 		{#if data?.userId == null}
 			<form method="post" action="?/signin" bind:this={loginForm}>
 				<card-body>
-					<div class="px-10">
+					<div class="px-2 md:px-10">
 						<label class="label text-xl py-1">
 							<span>Email</span>
 							<input
-								class="input variant-form-material p-6"
+								class="input variant-form-material p-1 md:p-6"
 								type="email"
 								name="email"
 								value={form?.email || ''}
@@ -37,11 +37,11 @@
 							/>
 						</label>
 					</div>
-					<div class="px-10">
-						<label class="label text-xl py-8">
+					<div class="px-2 md:px-10 mt-0 md:mt-6">
+						<label class="label text-xl py-0 md:py-8">
 							<span>Password</span>
 							<input
-								class="input variant-form-material p-6"
+								class="input variant-form-material p-1 md:p-6"
 								type="password"
 								name="password"
 								id="id"
@@ -79,7 +79,9 @@
 									<div class="flex inline-flex bg-green-900 w-[4.1rem] justify-center">
 										<Icon icon="fa:google" class=" m-3 text text-white text-[35px]" />
 									</div>
-									<div class="mx-4 text-lg font-extrabold inline-block align-baseline my-auto">
+									<div
+										class="mx-4 text-xs sm:text-sm md:text-md lg:text-lg font-extrabold inline-block align-baseline my-auto"
+									>
 										Login with Google
 									</div>
 								</div>
@@ -93,7 +95,9 @@
 									<div class="flex inline-flex bg-slate-800 w-[4.1rem] justify-center">
 										<Icon icon="fa:facebook" class="m-3 text text-white text-[35px]" />
 									</div>
-									<div class="mx-4 text-lg font-extrabold inline-block align-baseline my-auto">
+									<div
+										class="mx-4 text-xs sm:text-sm md:text-md lg:text-lg font-extrabold inline-block align-baseline my-auto"
+									>
 										Login with Facebook
 									</div>
 								</div>
@@ -107,9 +111,11 @@
 							<button
 								type="button"
 								on:click={cancelAndRedirectForm}
-								class="btn-lg variant-outline-primary border">Cancel</button
+								class="btn md:btn-lg variant-outline-primary border">Cancel</button
 							>
-							<button type="submit" class="btn-lg variant-filled-primary border">Log-in</button>
+							<button type="submit" class="btn md:btn-lg variant-filled-primary border"
+								>Log-in</button
+							>
 						</div>
 					</div>
 				</card-footer>
@@ -117,7 +123,7 @@
 		{:else}
 			<card-body>
 				<form method="post" action="?/signout">
-					<button type="submit" class="btn-lg variant-filled-primary border">logout</button>
+					<button type="submit" class="btn md:btn-lg variant-filled-primary border">logout</button>
 				</form>
 			</card-body>
 		{/if}

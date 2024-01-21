@@ -13,7 +13,7 @@
 	if (loggedIn && !currSubscription) {
 		currSubscription = 'Free';
 	}
-
+	console.log(currSubscription);
 	// set minumum columns to 1
 	let columns = 1;
 	// if there are more than 1 price, set columns to the number of prices
