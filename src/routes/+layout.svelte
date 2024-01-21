@@ -17,7 +17,7 @@
 		<slot />
 	</container>
 	<footer class="flex justify-center mt-10 min-h-[200px] text-slate-100 bg-slate-700">
-		<div class="grid grid-cols-3 gap-4 w-3/5 my-10">
+		<div class="grid grid-cols-3 gap-4 md:w-3/5 my-10 w-5/6 text-xs">
 			<div class="col-span-1">
 				<ul>
 					<li class=" hover:text-slate-300"><a href="/policy/terms">Term of service</a></li>
@@ -27,9 +27,8 @@
 			</div>
 			<div class="col-span-1">
 				<ul>
-					<li><a href="mailto:jsjazzau@gmail.com">Contect us</a></li>
+					<li><a href="mailto:jsjazzau@gmail.com">Contact us</a></li>
 					<li><a href="/pricing">Pricing</a></li>
-					<li><a href="#">Cookies Policy</a></li>
 				</ul>
 			</div>
 			<div class="col-span-1"></div>
@@ -57,7 +56,8 @@
 		flex: 1; /* This makes the container grow to fill available space */
 	}
 
-	footer {
+	footer li {
+		@apply py-1 text-slate-100;
 		/* Your existing footer styles */
 	}
 

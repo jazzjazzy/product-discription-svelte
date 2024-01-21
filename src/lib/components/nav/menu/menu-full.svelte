@@ -6,6 +6,9 @@
 
 
 <div class="font-sans">
+    <div class="btn-lg inline-block border-b-2 border-b-white hover:border-b-orange-500">
+        <a href="/"><div class="text-2xl">Home</div></a>
+    </div>
     {#if data.plan === 'Pro' || data.plan === 'Ultra' || adminGod}
         <!--<div class="btn-lg inline-block">
             <a href="/faq"><div class="text-2xl">FAQ</div></a>
