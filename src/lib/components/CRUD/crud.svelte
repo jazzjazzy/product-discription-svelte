@@ -68,13 +68,13 @@
 </script>
 
 <!-- Component HTML -->
-<div class="pt-16 px-3 md:px-16 lg:px-16 xl:px-[32rem]">
+<div class="px-1 md:px-16 lg:px-36 xl:px-[20rem]">
 	<card-main>
 		<card-header>
 			<h2 class="h2">{title}</h2>
 		</card-header>
 		<form method="post">
-			<section class="px-12">
+			<section class="px-2 md:px-12">
 				{#each entries as [key, value]}
 					<div class="py-4">
 						<label class="h4 pb-3 uppercase" for={key}>{key}</label>
@@ -125,20 +125,28 @@
 				{/each}
 			</section>
 			<card-footer>
-				{#if id}
-					<button class="btn variant-ghost-primary m-3" id="btn-update" formaction="?/update"
-						>Update</button
-					>
-					<button class="btn variant-ghost-error m-3" id="btn-delete" formaction="?/delete"
-						>Delete</button
-					>
+				<div class="hidden md:block">
+					<!-- we hide the button in < small mode as we have no validation on delete so we don't want to delete by acccident -->
+					<!-- need to fix ASAP-->
+					{#if id}
+						<button class="btn variant-ghost-primary m-3" id="btn-update" formaction="?/update"
+							>Update</button
+						>
+						<button class="btn variant-ghost-error m-3" id="btn-delete" formaction="?/delete"
+							>Delete</button
+						>
+						<a href="/admin" class="btn variant-ghost-warning m-3" id="btn-cancel">Cancel</a>
+					{:else}
+						<button class="btn variant-ghost-primary m-3" id="btn-save" formaction="?/create"
+							>Update</button
+						>
+						
+					{/if}
+				</div>
+				<div class="block md:hidden">
+					<!-- this is a hack just so we can get back in sm mode -->
 					<a href="/admin" class="btn variant-ghost-warning m-3" id="btn-cancel">Cancel</a>
-				{:else}
-					<button class="btn variant-ghost-primary m-3" id="btn-save" formaction="?/create"
-						>Update</button
-					>
-					<a href="/admin" class="btn variant-ghost-warning m-3" id="btn-cancel">Cancel</a>
-				{/if}
+				</div>
 			</card-footer>
 		</form>
 	</card-main>

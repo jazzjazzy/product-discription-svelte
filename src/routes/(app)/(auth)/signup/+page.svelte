@@ -15,25 +15,24 @@
 	}
 </script>
 
-<div class="container flex justify-center">
-	<card-main class="w-1/2">
+<div class="flex justify-center">
+	<card-main class="w-full lg:w-1/2">
 		<card-header>
 			<h1 class="text-left text-4xl">Sign up</h1>
 		</card-header>
 		{#if data?.userId == null}
 			<form method="post" bind:this={regform}>
 				<card-body>
-					<div class="px-10 py-4 grid grid-cols-2 gap-3">
+					<div class="px-2 md:px-10 py-4 grid grid-cols-1 md:grid-cols-2 gap-3">
 						<div class="col-span-1">
-							<label class="label text-xl">
+							<label class="label text-sm md:text-xl mt-0 md:mt-6">
 								<span>Name</span>
 								<input
-									class="input variant-form-material p-6"
+									class="input variant-form-material p-1 md:p-6"
 									type="text"
 									name="firstname"
 									value={form?.data.firstname || ''}
 									placeholder="Name"
-
 								/>
 							</label>
 							{#if form?.errors?.firstname}
@@ -41,10 +40,10 @@
 							{/if}
 						</div>
 						<div class="col-span-1">
-							<label class="label text-xl">
+							<label class="label text-sm md:text-xl mt-0 md:mt-6">
 								<span>Surname</span>
 								<input
-									class="input variant-form-material p-6"
+									class="input variant-form-material p-1 md:p-6"
 									type="text"
 									name="surname"
 									value={form?.data.surname || ''}
@@ -56,11 +55,11 @@
 							{/if}
 						</div>
 					</div>
-					<div class="px-10">
-						<label class="label text-xl py-1">
+					<div class="px-2 md:px-10">
+						<label class="label text-sm md:text-xl mt-0 md:mt-6">
 							<span>Email</span>
 							<input
-								class="input variant-form-material p-6"
+								class="input variant-form-material p-1 md:p-6"
 								type="email"
 								name="email"
 								value={form?.data.email || ''}
@@ -71,27 +70,26 @@
 							<FailWarning errorMessage={form?.errors?.email[0]} />
 						{/if}
 					</div>
-					<div class="px-10 pt-4">
-						<label class="label text-xl">
+					<div class="px-2 md:px-10 md:pt-4">
+						<label class="label text-sm md:text-xl">
 							<span>Password</span>
 							<input
-								class="input variant-form-material p-6"
+								class="input variant-form-material p-1 md:p-6"
 								type="password"
 								name="password"
 								id="id"
 								placeholder="password"
 							/>
-							
 						</label>
 						{#if form?.errors?.password}
-								<FailWarning errorMessage={form?.errors?.password[0]} />
+							<FailWarning errorMessage={form?.errors?.password[0]} />
 						{/if}
 					</div>
-					<div class="px-10 py-4">
-						<label class="label text-xl">
+					<div class="px-2 md:px-10 md:py-4">
+						<label class="label text-sm md:text-xl">
 							<span>Confirm Password</span>
 							<input
-								class="input variant-form-material p-6"
+								class="input variant-form-material p-1 md:p-6"
 								type="password"
 								name="confirmPassword"
 								id="confirmPassword"
@@ -100,7 +98,7 @@
 							/>
 						</label>
 						{#if form?.errors?.confirmPassword}
-								<FailWarning errorMessage={form?.errors?.confirmPassword[0]} />
+							<FailWarning errorMessage={form?.errors?.confirmPassword[0]} />
 						{/if}
 					</div>
 					<div class="h4 flex justify-center text-orange-300 hover:text-orange-600 pt-4">

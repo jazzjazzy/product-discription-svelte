@@ -140,12 +140,14 @@
 			class="w-full h-36 p-1 bg-gray-200 border-gray-300 focus:border-gray-400 focus:outline-0 focus:ring-1 rounded-xl"
 		/>
 		{#if plan === 'Pro' || plan === 'Ultra'}
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-				<button class="col-span-1 btn variant-filled-surface" on:click={openSelectDialog}
-					>Select other store discription</button
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-10">
+				<button
+					class="col-span-1 btn-xs sm:btn-sm md:btn-md lg:btn-lg lx:btn-xl variant-filled-surface"
+					on:click={openSelectDialog}>Select other store discription</button
 				>
-				<button class="col-span-1 btn variant-filled-error" on:click={openSaveDialog}
-					>Save this store discription</button
+				<button
+					class="col-span-1 btn-xs sm:btn-sm md:btn-md lg:btn-lg lx:btn-xl variant-filled-error"
+					on:click={openSaveDialog}>Save this store discription</button
 				>
 			</div>
 		{/if}
@@ -185,23 +187,3 @@
 		</Dialog>
 	{/if}
 </div>
-
-<style>
-	.dialog-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: rgba(0, 0, 0, 0.5);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-	.dialog-content {
-		width: 900px;
-		//padding: 20px;
-		border-radius: 10px;
-		background-color: white;
-	}
-</style>

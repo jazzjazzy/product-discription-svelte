@@ -5,7 +5,7 @@
 	import SuccessWarning from '$lib/components/successWarning.svelte';
 
 	export let data: PageData;
-	export let form: ActionData; 
+	export let form: ActionData;
 
 	let errorMessage = '';
 	let successMessage = '';
@@ -20,15 +20,20 @@
 </script>
 
 <form method="post">
-	<div class="container py-10 px-4 flex justify-center">
+	<div class="py-10 md:px-4 flex justify-center">
 		<card-main class="flex justify-center">
 			<card-header>
-				<h1>Send Reset</h1>
+				<h1 class="h2 md:h1">Send Reset</h1>
 			</card-header>
 			<card-body class="py-4">
-				<p>Enter your email address and we'll send you a link to reset your password.</p>
-				<label for="email">Email</label>
-				<input name="email" id="email" value={form?.email ?? ''} />
+				<p class="pb-3 md:pb-0">Enter your email address and we'll send you a link to reset your password.</p>
+				<label for="email" class="label text-sm md:text-xl mt-0 md:mt-6">Email</label>
+				<input
+					class="input variant-form-material p-1 md:p-6"
+					name="email"
+					id="email"
+					value={form?.email ?? ''}
+				/>
 				{#if errorMessage}
 					<FailWarning {errorMessage} />
 				{/if}

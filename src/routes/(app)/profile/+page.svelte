@@ -37,8 +37,8 @@
 {#if errorMessage}
 	<p class="error">{errorMessage}</p>
 {/if}
-<div class="container py-10 px-4 flex justify-center">
-	<div class="w-2/3 grid gap-7">
+<div class="py-10 md:px-4 flex justify-center">
+	<div class="w-full md:w-2/3 grid gap-7">
 		<card-main>
 			<card-header>
 				<h3>Profile</h3>
@@ -48,18 +48,35 @@
 					<div>
 						<label for="firstname">First name</label>
 						<div>
-							<input type="text" name="firstname" class="w-full" value={user.firstname} />
+							<input
+								class="w-full input variant-form-material p-1 md:p-6"
+								type="text"
+								name="firstname"
+								value={user.firstname}
+							/>
 						</div>
 					</div>
 					<div>
 						<label for="surname">Surname</label>
-						<div><input type="text" name="surname" class="w-full" value={user.surname} /></div>
+						<div>
+							<input
+								class="w-full input variant-form-material p-1 md:p-6"
+								type="text"
+								name="surname"
+								value={user.surname}
+							/>
+						</div>
 					</div>
 					{#if accountType === 'email'}
 						<div>
 							<label for="email">Email</label>
 							<div>
-								<input type="email" name="email" class="w-full" value={user.email} />
+								<input
+									class="w-full input variant-form-material p-1 md:p-6"
+									type="email"
+									name="email"
+									value={user.email}
+								/>
 							</div>
 						</div>
 					{/if}
@@ -88,15 +105,32 @@
 					<form method="post" action="?/changePassword" bind:this={passwordForm}>
 						<div>
 							<label for="oldpassword">Current Password</label>
-							<div class="w-full"><input type="password" name="oldpassword" class="w-full" /></div>
+							<div class="w-full">
+								<input
+									class="w-full input variant-form-material p-1 md:p-6"
+									type="password"
+									name="oldpassword"
+								/>
+							</div>
 						</div>
 						<div>
 							<label for="newpassword">New Password</label>
-							<div><input type="password" name="newpassword" class="w-full" /></div>
+							<div>
+								<input
+									class="w-full input variant-form-material p-1 md:p-6"
+									type="password"
+									name="newpassword"
+								/>
+							</div>
 						</div>
 						<div>
 							<label for="confirmpassword">Confirm Password</label>
-							<div><input type="password" name="confirmpassword" class="w-full" /></div>
+							<div>
+								<input 
+								class="w-full input variant-form-material p-1 md:p-6"
+								type="password" 
+								name="confirmpassword" 
+								 /></div>
 						</div>
 					</form>
 				</card-body>
@@ -117,27 +151,27 @@
 					{#if accountType === 'google'}
 						<div>
 							<div
-								class="border border-green-900 rounded-sm shadow-lg m-3 flex justify-items-center"
+							class="border border-slate-800 rounded-sm shadow-lg m-1 md:m-3 flex justify-items-center"
 							>
 								<div class="flex inline-flex bg-green-900 w-[4.1rem] justify-center">
 									<Icon icon="fa:google" class=" m-3 text text-white text-[35px]" />
 								</div>
-								<div class="mx-4 text-lg font-extrabold inline-block align-baseline my-auto">
+								<div class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold inline-block align-baseline my-auto">
 									{user.email}
 								</div>
 							</div>
 						</div>
 					{/if}
 					{#if accountType === 'facebook'}
-						<div class="">
+						<div class="max-w-[600px]">
 							<a href="/login/facebook">
 								<div
-									class="border border-slate-800 rounded-sm shadow-lg m-3 flex justify-items-center"
+									class="border border-slate-800 rounded-sm shadow-lg mt-1 md:mt-3 flex justify-items-center"
 								>
 									<div class="flex inline-flex bg-slate-800 w-[4.1rem] justify-center">
 										<Icon icon="fa:facebook" class="m-3 text text-white text-[35px]" />
 									</div>
-									<div class="mx-4 text-lg font-extrabold inline-block align-baseline my-auto">
+									<div class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold inline-block align-baseline my-auto">
 										{user.email}
 									</div>
 								</div>

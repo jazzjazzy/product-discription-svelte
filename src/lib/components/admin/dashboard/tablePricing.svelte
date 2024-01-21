@@ -2,7 +2,6 @@
 	import { Table } from '@skeletonlabs/skeleton';
 	import type { TableSource } from '@skeletonlabs/skeleton';
 	import { tableMapperValues } from '@skeletonlabs/skeleton';
-	import { redirect } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 
 	// todo: need to change out this table to use the new table component as Skeleton is not functional at all
@@ -28,7 +27,7 @@
 		const data = await getPricing();
 
 		const fetchedData = data.user;
-		console.log('fetchedData', fetchedData);
+
 		tableSimple = {
 			...tableSimple,
 			body: tableMapperValues(fetchedData, [

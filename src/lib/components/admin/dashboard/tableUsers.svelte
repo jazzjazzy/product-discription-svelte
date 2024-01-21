@@ -17,7 +17,7 @@
 		const data = await getUsers();
 
 		const fetchedData = data.user;
-		console.log('fetchedData', fetchedData);
+
 		tableSimple = {
 			...tableSimple,
 			body: tableMapperValues(fetchedData, [

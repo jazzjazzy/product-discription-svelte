@@ -5,13 +5,11 @@ import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 	const { token } = params;
-
-	console.log("token", token);
 	try {
 		const userId = await validateEmailVerificationToken(token);
-		console.log("userId", userId);
+
 		const user = await auth.getUser(userId);
-		console.log("user", user);
+
 		await auth.invalidateAllUserSessions(user.userId);
 		await auth.updateUserAttributes(user.userId, {
 			email_verified: true // `Number(true)` if stored as an integer
