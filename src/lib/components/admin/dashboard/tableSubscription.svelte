@@ -3,59 +3,59 @@
 	import type { TableSource } from '@skeletonlabs/skeleton';
 	import { tableMapperValues } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
+	import type {Subscription} from '$lib/types/subscription';
 
 	let tableSimple: TableSource = {
-		head: [
-			'id',
-			'user_id',
-			'active_expires',
-			'idle_expires',
-			'name',
-			'role',
-			'subscribed',
-			'plan',
-			'user'
-		],
+		head: ['id', 'user_id', 'User', 'type', 'name','price', 'stripe_status', 'created'],
 		body: [],
 		meta: [],
 		foot: []
 	};
 
 	onMount(async () => {
-		const data = await getSessions();
+		const data = await getSubscriptions();
 
-		const fetchedData = data.user;
+		const fetchedData = data.user.map((subscription: Subscription) => {
+			return {
+				id: subscription.id,
+				user_id: subscription.user_id,
+				User_name: subscription.User.firstname + ' ' + subscription.User.surname, 
+				type: subscription.type,
+				Pricing_name: subscription.Pricing.name,
+				Pricing_price: `$${subscription.Pricing.price}`, 
+				stripe_status: subscription.stripe_status,
+				created : subscription.created_at,
+			};
+		});
 
 		tableSimple = {
 			...tableSimple,
 			body: tableMapperValues(fetchedData, [
 				'id',
 				'user_id',
-				'active_expires',
-				'idle_expires',
-				'name',
-				'role',
-				'subscribed',
-				'plan',
-				'user'
+				'User_name',
+				'type',
+				`Pricing_name`,
+				'Pricing_price',
+				'stripe_status',
+				'created'
 			]),
 			meta: tableMapperValues(fetchedData, [
 				'id',
 				'user_id',
-				'active_expires',
-				'idle_expires',
-				'name',
-				'role',
-				'subscribed',
-				'plan',
-				'user'
+				'User_name',
+				'type',
+				`Pricing_name`,
+				'Pricing_price',
+				'stripe_status',
+				'created'
 			]),
 			foot: ['Total', '', `<code class="code">${data.message}</code>`]
 		};
 	});
 
-	async function getSessions() {
-		const response = await fetch('/api/admin/sessions', {
+	async function getSubscriptions() {
+		const response = await fetch('/api/admin/subscription', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

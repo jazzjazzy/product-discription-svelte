@@ -45,7 +45,4 @@
 		border-radius: 10px;
 		background-color: white;
 	}
-	card-footer {
-	;
-	}
 </style>

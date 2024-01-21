@@ -1,11 +1,5 @@
-<script lang="ts">
-	import type { PageData } from './$types';
-
-	export let data: PageData;
-</script>
-
 <div class="m-6 flex justify-center">
-	<div class="w-3/5">
+	<div class="w-full md:w-3/5">
 		<h1 class="h1">Cookie Policy for dis.scription</h1>
 
 		<h2>Introduction</h2>
@@ -55,11 +49,7 @@
 
 <style>
 	h1,
-	h2,
-	h3,
-	h4,
-	h5,
-	h6 {
+	h2{
 		@apply flex-none justify-start py-4 text-left font-semibold;
 	}
 </style>

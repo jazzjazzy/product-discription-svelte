@@ -7,12 +7,7 @@ const nowTimestamp = BigInt(now.getTime());
 export const load = (async ({ locals }) => {
 
     let session = await locals.auth.validate();
-
-    console.log('session', session);
-
     let sessionId = session.sessionId
-
-    console.log('sessionId', sessionId);
 
     const online = await prisma.session.count({
         where: {
@@ -58,6 +53,14 @@ export const load = (async ({ locals }) => {
         }
     });
 
+    const subscribedSevenDays = await prisma.subscription.count({
+        where: {
+            created_at: {
+                gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            }
+        }
+    });
+
     const historySevenDays = await prisma.descriptionHistory.count({
         where: {
             created_at: {
@@ -67,5 +70,6 @@ export const load = (async ({ locals }) => {
     });
 
 
-    return { online, usersSevenDays, usersToday, historySevenDays, sessionId };
+
+    return { online, usersSevenDays, usersToday, subscribedSevenDays, historySevenDays, sessionId };
 }) satisfies PageServerLoad;

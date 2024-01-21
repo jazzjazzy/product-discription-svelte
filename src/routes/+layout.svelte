@@ -37,14 +37,6 @@
 </content>
 
 <style>
-	html,
-	body {
-		height: 100%;
-		margin: 0;
-		padding: 0;
-		/* Add any other styles you need for body */
-	}
-
 	/* Assuming <content> is the main wrapper for your page content */
 	content {
 		display: flex;

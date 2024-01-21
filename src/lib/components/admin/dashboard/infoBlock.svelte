@@ -5,8 +5,8 @@
 
 <div class="mainbox">
 	<div class="">
-		<h3 class="text-xl text-center">{@html title}</h3>
-		<div class="text-7xl text-emerald-700 text-center font-semibold">
+		<h3 class="text-xs md:text-xl text-center">{@html title}</h3>
+		<div class="text-xl md:text-7xl text-emerald-700 text-center font-semibold">
 			{value}
 		</div>
 	</div>

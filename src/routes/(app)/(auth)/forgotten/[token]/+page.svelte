@@ -5,28 +5,39 @@
 
 	export let form: ActionData;
 
-	console.log("form",form?.errors);
-	
+	console.log('form', form?.errors);
 </script>
 
 <form method="post">
 	<div class="py-10 px-4 flex justify-center">
 		<card-main class="flex justify-center">
 			<card-header>
-				<h1>Reset password</h1>
+				<h1 class="h2 md:h1">Reset password</h1>
 			</card-header>
 			<card-body>
-				<p>Enter your email address and we'll send you a link to reset your password.</p>
-					<label for="email">New Password</label>
-					<input type="password" name="password" id="Password" /><br />
-					{#if form?.errors?.password}
-						<FailWarning errorMessage={form?.errors?.password} />
-					{/if}
-					<label for="email">Confirm New Password</label>
-					<input type="password" name="confirmPassword" id="confirmPassword" /><br />
-					{#if form?.errors?.confirmPassword}
-						<FailWarning errorMessage={form?.errors?.confirmPassword} />
-					{/if}
+				<p class="pb-3 md:pb-0">Enter your email address and we'll send you a link to reset your password.</p>
+				<label for="password" class="label text-sm md:text-xl mt-0 md:mt-6">New Password</label>
+				<input
+					class="input variant-form-material p-1 md:p-6"
+					type="password"
+					name="password"
+					id="Password"
+				/><br />
+				{#if form?.errors?.password}
+					<FailWarning errorMessage={form?.errors?.password} />
+				{/if}
+				<label for="confirmPassword" class="mt-3 md:mb-0 label text-sm md:text-xl mt-0 md:mt-6"
+					>Confirm New Password</label
+				>
+				<input
+					class="input variant-form-material p-1 md:p-6"
+					type="password"
+					name="confirmPassword"
+					id="confirmPassword"
+				/><br />
+				{#if form?.errors?.confirmPassword}
+					<FailWarning errorMessage={form?.errors?.confirmPassword} />
+				{/if}
 			</card-body>
 			<card-footer>
 				<button type="submit" class="btn-lg variant-filled-primary border">Reset</button>
