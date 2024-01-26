@@ -11,21 +11,27 @@ export const sendEmailVerificationLink = async (token: string, email: string) =>
 
     // If we are in development mode, send the email to the developer instead
     if (dev) {
-        email = "devEmail";
+        email = devEmail;
     }
 
 
-    try {
-        await resend.emails.send({
-            from: 'Dis-scription <send@dis-scription.com>',
-            to: [email],
-            subject: 'Email verification link',
-            text: `Verify your email by clicking this link ${url} `,
-            html: getHTMLemail("Verify", url)
-        });
-    } catch (e: any) {
-        throw e;
+    // try {
+    let sent = await resend.emails.send({
+        from: 'Dis-scription <send@dis-scription.com>',
+        to: [email],
+        subject: 'Email verification link',
+        text: `Verify your email by clicking this link ${url} `,
+        html: getHTMLemail("Verify", url)
+    });
+
+    if (sent.error !== null) {
+        return sent.error;
     }
+
+    // } catch (e: any) {
+    //     console.log(e)
+    //     throw e;
+    // }
 }
 
 export const sendOAuthNotice = async (type: string, email: string) => {
@@ -37,14 +43,20 @@ export const sendOAuthNotice = async (type: string, email: string) => {
     }
 
     try {
-        await resend.emails.send({
+        let sent = await resend.emails.send({
             from: 'Dis-scription  <send@dis-scription.com>',
             to: [email],
             subject: 'Email verification link',
             text: `you have signed up using a ${type} OAuth account. Please verify your email address by clicking this link:${url} `,
             html: getHTMLemail("oAuth", url, type)
         });
-    } catch (e: any) {
+
+        if (sent.error !== null) {
+            throw sent.error;
+        }
+
+    } catch (e: unknown) {
+        console.log(e)
         throw e;
     }
 }
@@ -56,7 +68,7 @@ export const sendPasswordResetLink = async (token: string, email: string) => {
     if (devEmail) {
         email = devEmail;
     }
-
+    console.log("email", email);
     try {
         let sent = await resend.emails.send({
             from: 'Dis-scription <send@dis-scription.com>',
@@ -66,8 +78,13 @@ export const sendPasswordResetLink = async (token: string, email: string) => {
             html: getHTMLemail("Reset", url)
         });
 
+        if (sent.error !== null) {
+            throw sent.error;
+        }
+
     } catch (e: unknown) {
-        throw e
+        console.log(e)
+        throw e;
     }
 };
 

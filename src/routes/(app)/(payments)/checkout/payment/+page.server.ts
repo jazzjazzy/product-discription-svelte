@@ -6,6 +6,7 @@ import type { Subscription } from '$lib/types/subscription';
 import { redirect, error } from '@sveltejs/kit';
 import { auth } from "$lib/server/lucia";
 import { getUserlogin } from "$lib/helpers/user";
+import type { SubscriptionCreation } from '$lib/types/subscription';
 
 /**
  * Handles the load process for the subscription page.
@@ -17,6 +18,8 @@ import { getUserlogin } from "$lib/helpers/user";
 export async function load({ url, locals }): Promise<{ clientSecret: string; returnUrl: string }> {
   const subtype = url.searchParams.get('subtype');
   const isupdate = url.searchParams.get('update');
+
+  const trial_period_days = 14;
 
 
   if (!subtype) {
@@ -139,7 +142,7 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
           name,
           role,
           subscribed,
-          plan: newPricing.name,
+          plan: newPricing.name.toLowerCase(),
         }
       });
       locals.auth.setSession(newSession);
@@ -172,22 +175,25 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
       customerId = customer.id;
     }
 
-    //todo: fix this so we can use this subscription trial_period_days or just straight subscription based on a flag or setting jan 5 2024 jason
-
-    subscription = await stripe.subscriptions.create({
+    let subscriptionCreation: SubscriptionCreation = {
       customer: customerId,
       items: [{ price: pricing.stripe_price_id }],
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription' },
       expand: ['latest_invoice.payment_intent'],
-      trial_period_days: 14, // need to remove this it you don't want trial period
-    });
+    }
+
+    if (trial_period_days >= 0) {
+      subscriptionCreation.trial_period_days = trial_period_days;
+    }
+
+    subscription = await stripe.subscriptions.create(subscriptionCreation);
 
     let clientSecret = null;
     // todo: this is messy and needs to be fixed jan 5 2024 jason
 
-    // need to have a client secret to use in the Elements form which can be found in a payment_intent 
-    // But if we have a trial period we don't get one, so if there is no payment_intent create a setupIntent
+    // we need to have a client secret to use in the Elements form which can be found in a payment_intent 
+    // But if we have a trial period we don't get one, so if there is no payment_intent then create a setupIntent
     // and then get the client secret from that
     if (!subscription.latest_invoice?.payment_intent) {
       const setupIntent = await stripe.setupIntents.create({
@@ -200,8 +206,8 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
       clientSecret = subscription.latest_invoice.payment_intent.client_secret
     }
 
-    //if wwe have a subscription that is incomplete update it
-    if (user.subscription.length > 0 && user.subscription[0].stripe_status === 'incomplete') {
+    //if we have a subscription that is incomplete update it
+    if (user.subscription && user.subscription.length > 0 && user.subscription[0].stripe_status === 'incomplete') {
       await prisma.subscription.update({
         data: {
           stripe_subscription_id: subscription.id,
@@ -226,11 +232,37 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
               stripe_status: subscription.status,
               stripe_price_id: pricing.stripe_price_id,
               price_id: pricing.id,
+              trial_end_date: await getTrialEndDate(trial_period_days),
             },
           },
         },
       });
     }
+
+
+    //update the session and add the new plan
+    const { name, role, subscribed, plan } = await getUserlogin(session.user.userId);
+    const newSession = await auth.createSession({
+      userId: session.user.userId,
+      attributes: {
+        name,
+        role,
+        subscribed,
+        plan: pricing.name.toLowerCase(),
+      }
+    });
+    locals.auth.setSession(newSession);
+
     return clientSecret;
+  }
+
+
+  async function getTrialEndDate(amountOfDays: number) {
+    if (amountOfDays > 0) {
+      const trialEndDate = new Date();
+      trialEndDate.setDate(trialEndDate.getDate() + amountOfDays);
+      return trialEndDate;
+    }
+    return null;
   }
 }

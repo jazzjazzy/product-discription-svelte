@@ -101,20 +101,27 @@ model Pricing {
 }
 
 model Subscription {
-  id                     String    @id @default(uuid())
-  type                   String
-  user_id                String
-  price_id               String
-  stripe_subscription_id String
-  stripe_status          String
-  stripe_price_id        String
-  stripe_customer_id     String    @unique
-  trial_end_date         DateTime?
-  created_at             DateTime  @default(now())
-  updated_at             DateTime  @updatedAt
-  deleted_at             DateTime?
-  User                   User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  Pricing                Pricing   @relation(fields: [price_id], references: [id])
+  id                          String    @id @default(uuid())
+  type                        String
+  user_id                     String
+  price_id                    String
+  stripe_subscription_id      String
+  stripe_status               String
+  stripe_price_id             String
+  stripe_customer_id          String    @unique
+  stripe_payment_failed       Int       @default(0) /// if the payment failed increment counter, set by webhook
+  stripe_deleted_at           DateTime? /// if the subscription is canceled via stripe webhooks due to failed payment
+  stripe_deleted_reason       String? /// Reason why the subscription was canceled from stripe webhook
+  stripe_cancel_at            DateTime? /// date subscription will end, set by webhook
+  stripe_cancel_at_period_end Boolean   @default(false) /// is subsription canceled at the next billing cycle, set by webhook
+  stripe_canceled_at          DateTime? /// date user canceled Subsription, set by webhook
+  trial_ending_soon           Boolean   @default(false) /// if the trial ending in three days, set by webhook
+  trial_end_date              DateTime?
+  created_at                  DateTime  @default(now())
+  updated_at                  DateTime  @updatedAt
+  deleted_at                  DateTime?
+  User                        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  Pricing                     Pricing   @relation(fields: [price_id], references: [id])
 
   @@index([user_id])
   @@index([price_id])

@@ -6,14 +6,14 @@ import { generateEmailVerificationToken } from "$lib/server/token";
 import { sendEmailVerificationLink } from "$lib/server/email";
 
 
-export const load = (async ({locals}) => {
+export const load = (async ({ locals }) => {
     const session = await locals.auth.validate();
-	if (session) {
-		if (!session.user.emailVerified) throw redirect(302, "/email-verification");
-		throw redirect(302, "/");
-	}
-	return {};
-}) 
+    if (session) {
+        if (!session.user.emailVerified) throw redirect(302, "/email-verification");
+        throw redirect(302, "/");
+    }
+    return {};
+})
 
 
 const schema = z.object({
@@ -95,17 +95,27 @@ export const actions = {
             locals.auth.setSession(session); // set the session in the auth request
 
             const token = await generateEmailVerificationToken(user.userId);
-			await sendEmailVerificationLink(token, result.email);
+            let verificationSent = await sendEmailVerificationLink(token, result.email);
+
+            if (!verificationSent || verificationSent.error !== null) {
+                await auth.deleteUser(user.userId); // delete 
+                throw verificationSent.message;
+            }
 
         } catch (err: any) {
             console.log("exception:: ", err);
-            const { fieldErrors: errors } = err.flatten();
-            const { password, passwordConfirm, ...rest } = formData;
-            return {
-                data: rest,
-                errors,
+            if (err instanceof z.ZodError) {
+                const { fieldErrors: errors } = err.flatten();
+                const { password, passwordConfirm, ...rest } = formData;
+                return {
+                    data: rest,
+                    errors,
+                }
+            } else {
+                return {
+                    err,
+                }
             }
-
         }
         throw redirect(302, '/dashboard');
 

@@ -6,7 +6,7 @@
 	},
 	"private": true,
 	"scripts": {
-		"postinstall": "prisma generate",
+		"postinstall": "prisma migrate deploy && prisma generate",
 		"local mysql stop": "sudo /etc/init.d/mysql stop",
 		"docker up": "docker-compose up -d",
 		"docker down": "docker-compose down",

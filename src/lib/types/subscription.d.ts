@@ -30,3 +30,12 @@ export type Subscription = {
     User: User[];
     Pricing: Pricing[];
 }
+
+type SubscriptionCreation = {
+    customer: string;
+    items: Array<{ price: string }>;
+    payment_behavior: 'default_incomplete';
+    payment_settings: { save_default_payment_method: 'on_subscription' };
+    expand: string[];
+    trial_period_days?: number;
+};
