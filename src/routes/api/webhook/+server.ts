@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { SECRET_STRIPE_KEY } from '$env/static/private';
+import { WEBHOOK_STRIPE_KEY } from '$env/static/private';
 import Stripe from 'stripe';
 import {
     trialEndingSoon,
@@ -13,7 +13,6 @@ import { dev } from '$app/environment';
 
 
 export const POST: RequestHandler = async ({ request }) => {
-    const endpointSecret = "whsec_ecc524212f1327aa93f426f21ba54cad008f6c5e986a34fea1ab217329262d1b";
     const sig: string | null = request.headers.get('stripe-signature');
     let event;
 
@@ -21,7 +20,7 @@ export const POST: RequestHandler = async ({ request }) => {
         // if we are in production and we need to verify the signature or testing with a signature
         if (sig !== null) {
             const body = await request.text();
-            event = Stripe.webhooks.constructEvent(body, sig, endpointSecret);
+            event = Stripe.webhooks.constructEvent(body, sig, WEBHOOK_STRIPE_KEY);
         } else {
             // else we don't have a signature, if we are in dev mode we are manually testing the webhook
             if (dev) {
