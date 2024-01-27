@@ -33,7 +33,88 @@ export async function getEtsyDescription(chat: chatProductSetting, countRetrys =
                         "product used to help a seller. from the description created write a title for etsy of 140 charaters but the " +
                         "first 50 should be about product, images, photography and design as well generate 13 keywords in a comma-separate " +
                         "list and return the description and keyword in a JSON format in a code block with the title in a tag called 'title', " +
-                        "the description in a tag called 'description' and the keywords in a tag called 'keywords'"
+                        "the description in a tag called 'description' and the keywords in a tag called 'keywords'" +
+                        "When writing the description pick from the following description starters to help you get started " +
+                        "'Experience the ultimate '\n" +
+                        "'Step into a '\n" +
+                        "'Redefining '\n" +
+                        "'Elevate your '\n" +
+                        "'Crafted with precision '\n" +
+                        "'Discover the perfect '\n" +
+                        "'At the forefront '\n" +
+                        "'Unleash your potential '\n" +
+                        "'Immerse yourself in '\n" +
+                        "'Introducing the future '\n" +
+                        "'Transform your '\n" +
+                        "'Embrace the epitome '\n" +
+                        "'Delve into the '\n" +
+                        "'The pinnacle of '\n" +
+                        "'Engineered for excellence '\n" +
+                        "'Indulge in the '\n" +
+                        "'Setting new standards '\n" +
+                        "'Masterfully designed to '\n" +
+                        "'Welcome to a '\n" +
+                        "'Harness the power '\n" +
+                        "'Pushing the boundaries '\n" +
+                        "'Inspired by '\n" +
+                        "'Break free from '\n" +
+                        "'Join the revolution '\n" +
+                        "'Where elegance meets '\n" +
+                        "'Built for the '\n" +
+                        "'Challenge the status '\n" +
+                        "'In a league '\n" +
+                        "'Blending art and '\n" +
+                        "'Crafted for those'\n" +
+                        "'Begin your journey with '\n" +
+                        "'Revolutionize your '\n" +
+                        "'Dive into excellence with '\n" +
+                        "'Elevating [product category] to new heights, '\n" +
+                        "'Capture the essence of '\n" +
+                        "'Explore the brilliance of '\n" +
+                        "'Welcome innovation into your life with '\n" +
+                        "'Designed to inspire, our '\n" +
+                        "'Lead the way in [specific field] with '\n" +
+                        "'Unlock the secret to '\n" +
+                        "'Experience unmatched quality with '\n" +
+                        "'Revel in the luxury of '\n" +
+                        "'Seamlessly integrating [feature] with '\n" +
+                        "'Venture into a new realm of '\n" +
+                        "'Change the game with '\n" +
+                        "'Envision perfection with '\n" +
+                        "'Achieve more with our '\n" +
+                        "'Tailored for your lifestyle, the '\n" +
+                        "'Soar to new heights with '\n" +
+                        "'Embark on an adventure with '\n" +
+                        "'Discover unparalleled performance in '\n" +
+                        "'Meet the epitome of '\n" +
+                        "'Innovating for tomorrow, our '\n" +
+                        "'Celebrate the art of '\n" +
+                        "'Redefine your expectations with '\n" +
+                        "'Journey beyond the ordinary with '\n" +
+                        "'The embodiment of excellence, our '\n" +
+                        "'Simplify your life with '\n" +
+                        "'Amplify your experience with '\n" +
+                        "'Navigate your world with '\n" +
+                        "'Break new ground with '\n" +
+                        "'Embrace a new standard of '\n" +
+                        "'Pioneering in [specific field], our '\n" +
+                        "'Take control with the '\n" +
+                        "'Uncover the future of '\n" +
+                        "'Beyond mere functionality, our '\n" +
+                        "'Revolutionize your day-to-day with '\n" +
+                        "'Witness the evolution of '\n" +
+                        "'Capture the spirit of '\n" +
+                        "'Forging new paths in '\n" +
+                        "'Embodying the fusion of '\n" +
+                        "'Usher in a new era of '\n" +
+                        "'Command excellence with '\n" +
+                        "'Ignite your passion with '\n" +
+                        "'Explore uncharted territories with '\n" +
+                        "'Beyond conventional limits, our '\n" +
+                        "'Rise above the ordinary with '\n" +
+                        "'For the discerning enthusiast, our '\n" +
+                        "'Merging tradition with innovation, our '\n" +
+                        "'Carve your niche with'"
                 },
                 {
                     "role": "user",
