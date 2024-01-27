@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+import { auth } from '../src/lib/server/lucia';
 
 const prisma = new PrismaClient();
 
 async function main() {
     try {
         // Insert Categories
-        const categories = await prisma.pricing.createMany({
+        await prisma.pricing.createMany({
             data: [
                 {
                     name: 'FREE',
@@ -57,6 +58,22 @@ async function main() {
                     visable: true,
                 },
             ],
+        });
+
+        //ADD GOD USER
+        await auth.createUser({
+            key: {
+                providerId: 'email',
+                providerUserId: '',
+                password: "password",
+            },
+            attributes: {
+                email_verified: true,
+                email: 'admin@dis-scription.com',
+                firstname: 'admin',
+                surname: 'admin',
+                role: 'GOD',
+            }
         });
 
         console.log("Seed data inserted successfully!");

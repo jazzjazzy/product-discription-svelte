@@ -35,7 +35,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 		});
 	} catch (e) {
 		console.error(e);
-		return new Response("Invalid email verification link", {
+				return new Response("Invalid email verification link", {
 			status: 400
 		});
 	}
