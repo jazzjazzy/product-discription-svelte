@@ -20,7 +20,7 @@ jobs:
 
       - name: Authenticate with PlanetScale
         run: |
-         echo ${{ secrets.PLANETSCALE_SERVICE_TOKEN }} | pscale auth login --service-token ${{ secrets.PLANETSCALE_SERVICE_TOKEN }} --service-token-id ${{ secrets.PLANETSCALE_TOKEN_ID}} --service-token-stdin
+         pscale auth login --service-token ${{ secrets.PLANETSCALE_SERVICE_TOKEN }} --service-token-id ${{ secrets.PLANETSCALE_TOKEN_ID}}
 
       - name: Create Deploy Request
         id: create-deploy-request
