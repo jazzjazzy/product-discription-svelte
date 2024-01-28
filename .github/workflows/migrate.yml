@@ -16,8 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install PlanetScale CLI
-        run: |
-        curl -LO https://github.com/planetscale/cli/releases/download/v0.178.0/pscale_0.178.0_linux_amd64.deb && sudo dpkg -i pscale_0.178.0_linux_amd64.deb && rm pscale_0.178.0_linux_amd64.deb
+        run: curl -LO https://github.com/planetscale/cli/releases/download/v0.178.0/pscale_0.178.0_linux_amd64.deb && sudo dpkg -i pscale_0.178.0_linux_amd64.deb && rm pscale_0.178.0_linux_amd64.deb
 
       - name: Authenticate with PlanetScale
         run: |
