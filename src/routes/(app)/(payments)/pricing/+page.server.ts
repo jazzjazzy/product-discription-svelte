@@ -1,7 +1,6 @@
 import type { PageServerLoad } from './$types';
 import type { Pricing } from '$lib/types/subscription';
 import prisma from '$lib/server/prisma';
-import { auth } from '$lib/server/lucia';
 
 export const load = (async ({ locals }) => {
     const session = await locals.auth.validate();
@@ -10,7 +9,8 @@ export const load = (async ({ locals }) => {
 
     if (!!session) {
         // get the current login subscription name
-        currSubscription = session.plan;
+        // must be uppercase first letter
+        currSubscription = (session.plan) ? session.plan[0].toUpperCase() + session.plan.slice(1) : null;
     }
 
     const prices: Pricing[] = await getPricingData();
@@ -25,5 +25,5 @@ export const load = (async ({ locals }) => {
 
 // get all pricing data
 async function getPricingData(): Promise<Pricing[]> {
-    return await prisma.pricing.findMany({orderBy: {price: `asc`}});
+    return await prisma.pricing.findMany({ orderBy: { price: `asc` } });
 }

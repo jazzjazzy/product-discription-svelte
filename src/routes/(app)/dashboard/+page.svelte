@@ -182,7 +182,8 @@
 
 			if (status === 200) {
 				//const { results } = JSON.parse(body);
-				const { product_title, product_description, product_keywords } = body.result.etsyDescription;
+				const { product_title, product_description, product_keywords } =
+					body.result.etsyDescription;
 				monthlyLimit = body.monthlyLimit;
 
 				// count characters for title and description
@@ -254,7 +255,7 @@
 									<form
 										use:enhance
 										id="uploadForm"
-										action="?/upload"
+										action="/dashboard?/upload"
 										method="post"
 										enctype="multipart/form-data"
 									>
@@ -393,8 +394,8 @@
 						<div class="flex justify-center text-center">
 							<div class="w-1/2 border border-slate-500 rounded-md bg-red-100 p-3">
 								<p class="mb-6">
-									You have reached your monthly limit of <strong>180</strong> description per Month, to
-									continue please upgrade to a Ultra account
+									You have reached your monthly limit of <strong>180</strong> description per Month,
+									to continue please upgrade to a Ultra account
 								</p>
 								<a href="/pricing" class="btn variant-filled-primary rounded-md">Purchase Account</a
 								>

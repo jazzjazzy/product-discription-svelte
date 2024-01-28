@@ -35,12 +35,10 @@ export const GET = async ({ url, cookies, locals }) => {
 			return user;
 		};
 
-		console.log("getUser", getUser);
-
 		const user = await getUser();
 
 		const { name, role, subscribed, plan } = await getUserlogin(user.userId);
-		console.log("getUser", name, role, subscribed, plan);
+
 		const session = await auth.createSession({
 			userId: user.userId,
 			attributes: {

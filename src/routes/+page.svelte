@@ -25,13 +25,22 @@
 					engine rankings, and drive sales with dis.scription – where every word counts in elevating
 					your e-commerce success.
 				</p>
-				<div class="text-gray-600 w-full flex justify-center py-4">
-					<a
-						href="/signup"
-						class="btn variant-filled-primary text-2xl font-semibold font-montserrat"
-					>
-						SIGN UP NOW
-					</a>
+				<div class="text-gray-600 w-full flex justify-end pr-6 py-4">
+					{#if data.subscribed}
+						<a
+							href="/dashboard"
+							class="btn variant-ghost-primary rounded-md m-0 text-4xl font-semibold font-montserrat"
+						>
+							START GENERATING&nbsp;&nbsp;>>
+						</a>
+					{:else}
+						<a
+							href="/signup"
+							class="btn variant-ghost-primary rounded-md m-0 text-4xl font-semibold font-montserrat"
+						>
+							SIGN UP NOW&nbsp;&nbsp;>>
+						</a>
+					{/if}
 				</div>
 			</div>
 			<div class="col-span-1 content-end">
@@ -125,11 +134,11 @@
 		<div class="lg:px-44 text-gray-600 w-full">
 			<h2 class="h2">Testimonials</h2>
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div class="col-span-1  p-6 flex flex-col justify-between">
+				<div class="col-span-1 p-6 flex flex-col justify-between">
 					<div class="text-xl">
-						<span class="text-3xl">"</span>Its great, It allows me to get my products up quickly with
-						a decent places holder, but in most cases product they are sold before I can changes it,
-						I love it<span class="text-3xl">"</span>
+						<span class="text-3xl">"</span>Its great, It allows me to get my products up quickly
+						with a decent places holder, but in most cases product they are sold before I can
+						changes it, I love it<span class="text-3xl">"</span>
 					</div>
 					<div class="pt-4text-right mt-auto">
 						Jason owner of <span class="font-extrabold">The Oak Dragon</span>
@@ -138,7 +147,9 @@
 				<div class="col-span-1 p-6 flex flex-col justify-between">
 					<div class="text-xl">
 						<span class="text-3xl">"</span>There is only so many to describe a chopping board, this
-						tool helps me get more depth into my description, helping with SEO<span class="text-3xl">"</span>
+						tool helps me get more depth into my description, helping with SEO<span class="text-3xl"
+							>"</span
+						>
 					</div>
 					<div class="pt-4 text-right mt-auto">
 						Sally co-owner of the <span class="font-extrabold">The Endgrain company</span>
@@ -159,10 +170,10 @@
 	}
 
 	section {
-		padding: 5rem .25rem;
+		padding: 5rem 0.25rem;
 	}
 
-	.text-3xl{
+	.text-3xl {
 		line-height: 0%;
 	}
 </style>
