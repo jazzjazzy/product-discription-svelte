@@ -120,7 +120,7 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
       // Handle any errors
       console.error("error::", error);
     });
-
+    //update local data base with new subscription
     if (newPricing) {
       await prisma.subscription.update({
         where: {

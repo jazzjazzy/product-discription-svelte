@@ -100,20 +100,20 @@ export async function customerSubscriptionUpdate(customerSubscriptionUpdateObj: 
     try {
         await prisma.subscription.update({
             where: {
-                stripe_subscription_id: subscriptionObj.id,
-                stripe_customer_id: subscriptionObj.customer,
+                stripe_subscription_id: customerSubscriptionUpdateObj.id,
+                stripe_customer_id: customerSubscriptionUpdateObj.customer,
             },
             data: {
-                stripe_status: subscriptionObj.status,
-                stripe_cancel_at: subscriptionObj.cancel_at ? new Date(subscriptionObj.cancel_at * 1000).toISOString() : null,
-                stripe_cancel_at_period_end: subscriptionObj.cancel_at_period_end,
-                stripe_canceled_at: subscriptionObj.canceled_at ? new Date(subscriptionObj.canceled_at * 1000).toISOString() : null,
+                stripe_status: customerSubscriptionUpdateObj.status,
+                stripe_cancel_at: customerSubscriptionUpdateObj.cancel_at ? new Date(customerSubscriptionUpdateObj.cancel_at * 1000).toISOString() : null,
+                stripe_cancel_at_period_end: customerSubscriptionUpdateObj.cancel_at_period_end,
+                stripe_canceled_at: customerSubscriptionUpdateObj.canceled_at ? new Date(customerSubscriptionUpdateObj.canceled_at * 1000).toISOString() : null,
             }
         })
     } catch (error: unknown) {
         let message: string = '';
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-            message = `Customer Subscription Update: Webhook Error: subscription ${subscriptionObj.id} and customer ${subscriptionObj.customer} not found in database`;
+            message = `Customer Subscription Update: Webhook Error: subscription ${customerSubscriptionUpdateObj.id} and customer ${customerSubscriptionUpdateObj.customer} not found in database`;
             // Handle the case where the record doesn't exist
         } else {
             message = "An unexpected error occurred " + error;
