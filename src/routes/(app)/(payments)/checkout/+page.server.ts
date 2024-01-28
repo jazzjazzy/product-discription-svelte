@@ -22,8 +22,6 @@ export const actions = {
       name: form.get('name')
     })
 
-    console.log(customer)
-
     // set a cookie
     cookies.set('customerId', customer.id)
 

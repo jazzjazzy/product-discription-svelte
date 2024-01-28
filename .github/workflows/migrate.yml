@@ -1,26 +1,36 @@
-name: Dis.scription database Migration
+# We are not using prisma migration because it is not supported by PlanetScale
+# We are using PlanetScale CLI to create a deploy request and deploy it
+
+name: Update PlanetScale Database
 
 on:
   push:
     branches:
-      - main  # Adjust this to match your production branch
+      - main
 
 jobs:
-  migrate:
+  update-database:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'  # Specify your Node.js version
+      - name: Install PlanetScale CLI
+        run: curl -LO https://github.com/planetscale/cli/releases/download/v0.178.0/pscale_0.178.0_linux_amd64.deb && sudo dpkg -i pscale_0.178.0_linux_amd64.deb && rm pscale_0.178.0_linux_amd64.deb
 
-    - name: Install dependencies
-      run: npm install
+      - name: Authenticate with PlanetScale
+        run: |
+         pscale auth login --service-token ${{ secrets.PLANETSCALE_SERVICE_TOKEN }} --service-token-name ${{ secrets.PLANETSCALE_TOKEN_NAME}}
 
-    - name: Run Prisma Migrate
-      env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Set your DATABASE_URL in the repository's secrets
-      run: npx prisma migrate deploy
+      - name: Create Deploy Request
+        id: create-deploy-request
+        run: |
+          output=$(pscale deploy-request create dis-scription development main --format json)
+          echo "DeployRequestOutput=$output" >> $GITHUB_ENV
+          deploy_request_number=$(echo $output | jq -r '.number')
+          echo ::set-output name=deploy_request_number::$deploy_request_number
+
+      - name: Deploy Request
+        run: pscale deploy-request deploy dis-scription ${{ steps.create-deploy-request.outputs.deploy_request_number }}
+        env:
+          PLANETSCALE_ORG: your-planetscale-org-name # Set your PlanetScale organization name here

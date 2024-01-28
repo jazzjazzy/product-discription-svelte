@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
     try {
         // Insert Categories
-        const categories = await prisma.pricing.createMany({
+        await prisma.pricing.createMany({
             data: [
                 {
                     name: 'FREE',
@@ -58,6 +58,29 @@ async function main() {
                 },
             ],
         });
+
+        //ADD GOD USER
+        await prisma.user.createMany({
+            data: [
+                {
+                    id: 'zystu2u4pqh',
+                    firstname: 'GOD',
+                    surname: 'User',
+                    email: 'admin@dis-scription.com',
+                    role: 'GOD',
+                    email_verified: true,
+                }],
+        });
+
+        await prisma.key.createMany({
+            data: [
+                {
+                    id: 'email:admin@dis-scription.com',
+                    hashed_password: 's2:iminjm156adzm32l:a2e3e2324b129e377a6dd850f2a25219ace34572abbd6c9e884e7e5511f7713b9aeb4586eeb1d597ad18d87c889326c80d8f88dd76728349479a90163592b914',
+                    user_id: 'zystu2u4pqh'
+                }],
+        });
+
 
         console.log("Seed data inserted successfully!");
     } catch (error) {
