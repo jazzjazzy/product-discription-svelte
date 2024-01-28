@@ -14,8 +14,6 @@ export const sendEmailVerificationLink = async (token: string, email: string) =>
         email = devEmail;
     }
 
-
-    // try {
     let sent = await resend.emails.send({
         from: 'Dis-scription <send@dis-scription.com>',
         to: [email],
@@ -28,10 +26,7 @@ export const sendEmailVerificationLink = async (token: string, email: string) =>
         return sent.error;
     }
 
-    // } catch (e: any) {
-    //     console.log(e)
-    //     throw e;
-    // }
+    return sent;
 }
 
 export const sendOAuthNotice = async (type: string, email: string) => {
