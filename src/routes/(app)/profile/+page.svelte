@@ -2,6 +2,9 @@
 	import Icon from '@iconify/svelte';
 	import type { PageData } from './$types';
 	import type { User } from '$lib/types/user';
+	import type { Subscription, trial } from '$lib/types/subscription';
+	import type { trialPeriod } from '$lib/types/webhooks';
+	import Dialog from '$lib/components/dialog.svelte';
 
 	export let data: PageData;
 	export let form;
@@ -9,6 +12,28 @@
 	let errorMessage: string = '';
 	let user = data.user;
 	let accountType: string = '';
+	let subscription = data.user.subscription[0];
+	let trial: trialPeriod;
+
+	console.log('subscription', subscription);
+
+	if (subscription && subscription.trial_end_date && subscription.trial_end_date > new Date()) {
+		let date1: Date = new Date();
+		let date2: Date = subscription.trial_end_date;
+
+		// Calculate the difference in milliseconds
+		let differenceInMilliseconds = date2 - date1;
+
+		// Convert milliseconds to days
+		let differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
+		let differenceInWholeDays = Math.round(differenceInDays);
+
+		trial = {
+			isTrial: true,
+			days: differenceInWholeDays,
+			endDate: subscription.trial_end_date
+		};
+	}
 
 	if (!user) {
 		errorMessage = 'User not found';
@@ -32,6 +57,52 @@
 	function updateUser() {
 		updateUserForm.submit();
 	}
+
+	/**
+	 * Will format a date to a human readable format
+	 *
+	 * @param thedate
+	 * @return Returns a formatted date string OR an empty string if date is null
+	 */
+	function formatDate(date: Date | null) {
+		if (date === null) {
+			return ''; // or any default string you prefer
+		}
+		let formattedDate = new Intl.DateTimeFormat('en-AU', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			weekday: 'long',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit'
+		}).format(date);
+		return formattedDate;
+	}
+
+	let isSubscriptionDialogOpen = false;
+	async function openSubscriptionDialog() {
+		isSubscriptionDialogOpen = true;
+	}
+
+	function closeSubscriptionDialog() {
+		isSubscriptionDialogOpen = false;
+	}
+
+	let SubscriptionValue = '';
+	$: isSubscription = SubscriptionValue.toLowerCase().includes('Delete');
+
+	let isDeleteDialogOpen = false;
+	async function openDeleteDialog() {
+		isDeleteDialogOpen = true;
+	}
+
+	function closeDeleteDialog() {
+		isDeleteDialogOpen = false;
+	}
+
+	let deleteValue = '';
+	$: isDelete = deleteValue.toLowerCase().includes('delete');
 </script>
 
 {#if errorMessage}
@@ -126,11 +197,12 @@
 						<div>
 							<label for="confirmpassword">Confirm Password</label>
 							<div>
-								<input 
-								class="w-full input variant-form-material p-1 md:p-6"
-								type="password" 
-								name="confirmpassword" 
-								 /></div>
+								<input
+									class="w-full input variant-form-material p-1 md:p-6"
+									type="password"
+									name="confirmpassword"
+								/>
+							</div>
 						</div>
 					</form>
 				</card-body>
@@ -151,12 +223,14 @@
 					{#if accountType === 'google'}
 						<div>
 							<div
-							class="border border-slate-800 rounded-sm shadow-lg m-1 md:m-3 flex justify-items-center"
+								class="border border-slate-800 rounded-sm shadow-lg m-1 md:m-3 flex justify-items-center"
 							>
 								<div class="flex inline-flex bg-green-900 w-[4.1rem] justify-center">
 									<Icon icon="fa:google" class=" m-3 text text-white text-[35px]" />
 								</div>
-								<div class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold inline-block align-baseline my-auto">
+								<div
+									class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold inline-block align-baseline my-auto"
+								>
 									{user.email}
 								</div>
 							</div>
@@ -171,7 +245,9 @@
 									<div class="flex inline-flex bg-slate-800 w-[4.1rem] justify-center">
 										<Icon icon="fa:facebook" class="m-3 text text-white text-[35px]" />
 									</div>
-									<div class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold inline-block align-baseline my-auto">
+									<div
+										class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold inline-block align-baseline my-auto"
+									>
 										{user.email}
 									</div>
 								</div>
@@ -181,23 +257,90 @@
 				</card-body>
 			</card-main>
 		{/if}
+		{#if data.subscribed}
+			<card-main>
+				<card-header>
+					<h3>Subscription</h3>
+				</card-header>
+				<card-body>
+					<p>
+						Once your account is deleted, all of its resources and data will be permanently deleted.
+						Before deleting your account, please download any data or information that you wish to
+						retain.
+					</p>
+					<div
+						class="border py-6 border-slate-800 rounded-sm shadow-lg mt-1 md:mt-3 flex justify-items-center"
+					>
+						<div class="flex inline-flex w-[8.1rem] justify-center my-auto h-full">
+							<div class="text-3xl uppercase">{subscription.type}</div>
+						</div>
 
-		<card-main>
-			<card-header>
-				<h3>Cancel Subscription</h3>
-			</card-header>
-			<card-body>
-				Once your account is deleted, all of its resources and data will be permanently deleted.
-				Before deleting your account, please download any data or information that you wish to
-				retain.
-			</card-body>
-			<card-footer>
-				<form method="post" action="?/cancelSub">
-					<button type="submit" class="btn variant-filled-secondary">Cancel Subscription</button>
-				</form>
-			</card-footer>
-		</card-main>
+						<div class="inline-block align-baseline my-auto pl-6">
+							{#if subscription.stripe_current_period_end}
+								<!-- if subscription is active then show date and info on next billing date -->
+								Next invoice:
+								<span class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold">
+									{@html formatDate(subscription?.stripe_current_period_end)}
+								</span><br />
+							{:else}
+								Next invoice: none;
+							{/if}
 
+							{#if subscription.stripe_cancel_at_period_end}
+								<!-- if subscription is cancel then show date and info on when it ends  -->
+								Canellation date :<span
+									class="text-red-400 mx-2 md:mx-4 text-xs md:text-lg font-extrabold"
+								>
+									{@html formatDate(subscription.stripe_cancel_at)}<br />
+								</span>
+								Canelled on:<span class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold">
+									{@html formatDate(subscription.stripe_canceled_at)}<br />
+								</span>
+							{:else if trial.isTrial}
+								<!-- if subscription is in trial period then show date and info on when it ends  -->
+								Trial days left:<span class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold">
+									{@html trial.days} days <br />
+								</span>
+								Trial end date:<span class="mx-2 md:mx-4 text-xs md:text-lg font-extrabold">
+									{@html formatDate(trial.endDate)}
+								</span>
+							{/if}
+						</div>
+					</div>
+				</card-body>
+
+				<card-footer>
+					<button
+						type="submit"
+						class="btn variant-filled-secondary"
+						on:click={openSubscriptionDialog}>Cancel Subscription</button
+					>
+
+					<form method="post" action="?/cancelSub">
+						<Dialog isOpen={isSubscriptionDialogOpen} onClose={closeSubscriptionDialog}>
+							<div slot="header">Cancel Subscription</div>
+							<span slot="footer"
+								><button
+									type="submit"
+									disabled={!isSubscription}
+									class="btn variant-filled-secondary">Cancel Subscription</button
+								></span
+							>
+							<div class="h-[200px] overflow-y-auto">
+								<div class="py-3">
+									To cancel your current active <span class="font-semibold"
+										>{subscription.type}</span
+									>
+									subscription enter <span class="font-semibold">'Subscription'</span> in the field below.
+									and the click the Cancel Subscription button.
+								</div>
+								<input type="text" name="cancel" bind:value={SubscriptionValue} placeholder="Type here..." />
+							</div>
+						</Dialog>
+					</form>
+				</card-footer>
+			</card-main>
+		{/if}
 		<card-main>
 			<card-header class="bg-red-300 border-red-700">
 				<h3 class="bg-red-300 text-red-700 text-sh">Delete Account</h3>
@@ -208,8 +351,25 @@
 				retain.
 			</card-body>
 			<card-footer>
+				<button class="btn variant-filled-secondary" on:click={openDeleteDialog}> Delete Account </button>
+
 				<form method="post" action="?/deleteAccount">
-					<button class="btn variant-filled-secondary"> Delete Accoount </button>
+					<Dialog isOpen={isDeleteDialogOpen} onClose={closeDeleteDialog}>
+						<div slot="header">Delete Account</div>
+						<span slot="footer"
+							><button type="submit" disabled={!isDelete} class="btn variant-filled-secondary"
+								>Delete Account</button
+							></span
+						>
+						<div class="h-[200px] overflow-y-auto">
+							<div class="py-3">
+								To delete your current active account enter <span class="font-semibold"
+									>'Delete'</span
+								> in the field below. and the click the Cancel Delete button.
+							</div>
+							<input type="text" name="account" bind:value={deleteValue} placeholder="Type here..." />
+						</div>
+					</Dialog>
 				</form>
 			</card-footer>
 		</card-main>

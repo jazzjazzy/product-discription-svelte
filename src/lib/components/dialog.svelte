@@ -11,7 +11,7 @@
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
 		<!-- svelte-ignore a11y-no-static-element-interactions -->
 		<div class="dialog-content" on:click|stopPropagation>
-			<card-main>
+			<card-main class="h-1/4">
 				<card-header>
 					<h1><slot name="header" /></h1>
 				</card-header>
@@ -19,8 +19,8 @@
 					<slot />
 				</card-body>
 				<card-footer>
-						<button class="btn variant-outline-primary border" on:click={onClose}>Close</button>
-						<slot name="footer" />
+					<button class="btn variant-outline-primary border" on:click={onClose}>Close</button>
+					<slot name="footer" />
 				</card-footer>
 			</card-main>
 		</div>

@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import prisma from '$lib/server/prisma';
 import { z } from "zod";
 import { auth } from '$lib/server/lucia';
 import { generateEmailVerificationToken } from "$lib/server/token";
@@ -65,9 +65,33 @@ export const actions = {
     default: async ({ locals, request }) => {
         const formData = Object.fromEntries(await request.formData());// line 41
 
+        // Initialize a ZodError instance for potential custom errors
+        let customError = new z.ZodError([]);
+
         try {
 
             const result: z = schema.parse(formData);
+
+            console.log("result:: ", result.email);
+
+            const existingUserExists = !!(await prisma.user.findFirst({
+                where: { email: result.email },
+            }));
+
+            if (existingUserExists) {
+                // Add a custom Zod issue for the email field
+                customError.addIssue({
+                    code: 'custom',
+                    path: ['email'], // Specify the path to the email field
+                    message: 'Email already in use. please try another email', // Custom error message
+                });
+
+                // Throw the custom ZodError
+                throw customError;
+            }
+
+
+            console.log("existingUserExists:: ", existingUserExists);
 
             const user = await auth.createUser({
                 key: {

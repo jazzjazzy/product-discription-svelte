@@ -117,6 +117,7 @@ model Subscription {
   stripe_canceled_at          DateTime? /// date user canceled Subsription, set by webhook
   trial_ending_soon           Boolean   @default(false) /// if the trial ending in three days, set by webhook
   trial_end_date              DateTime?
+  stripe_current_period_end   DateTime? /// date of the next billing cycle, set by webhook
   created_at                  DateTime  @default(now())
   updated_at                  DateTime  @updatedAt
   deleted_at                  DateTime?
