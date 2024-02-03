@@ -56,6 +56,7 @@ export const POST: RequestHandler = async ({ request }) => {
                 console.log('customer.subscription.deleted', customerSubscriptionDeletedObj);
                 break;
             case 'customer.subscription.updated':
+            case 'customer.subscription.created':
                 const customerSubscriptionUpdateObj = event.data.object;
                 await customerSubscriptionUpdate(customerSubscriptionUpdateObj);
                 console.log('customer.subscription.updated', customerSubscriptionUpdateObj);
