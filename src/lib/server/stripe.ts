@@ -104,10 +104,14 @@ export async function customerSubscriptionUpdate(customerSubscriptionUpdateObj: 
                 stripe_customer_id: customerSubscriptionUpdateObj.customer,
             },
             data: {
+                //status: customerSubscriptionUpdateObj.status,
                 stripe_status: customerSubscriptionUpdateObj.status,
+                //canceled_at: customerSubscriptionUpdateObj.canceled_at,
                 stripe_cancel_at: customerSubscriptionUpdateObj.cancel_at ? new Date(customerSubscriptionUpdateObj.cancel_at * 1000).toISOString() : null,
                 stripe_cancel_at_period_end: customerSubscriptionUpdateObj.cancel_at_period_end,
                 stripe_canceled_at: customerSubscriptionUpdateObj.canceled_at ? new Date(customerSubscriptionUpdateObj.canceled_at * 1000).toISOString() : null,
+                //next payment date
+                stripe_current_period_end : customerSubscriptionUpdateObj.current_period_end ? new Date(customerSubscriptionUpdateObj.current_period_end * 1000).toISOString() : null,
             }
         })
     } catch (error: unknown) {
