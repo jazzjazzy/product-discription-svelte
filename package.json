@@ -31,7 +31,9 @@
 		"prisma:seed": "prisma db seed",
 		"---------------- Planet Scale CLI -----------------": "",
 		"pscale:connect:main": "pscale connect dis-scription main --port 3309",
-		"pscale:connect:dev": "pscale connect dis-scription development --port 3309"
+		"pscale:connect:dev": "pscale connect dis-scription development --port 3309",
+		"---------------- Stripe CLI -----------------": "",
+		"start webhook tester": "stripe listen --forward-to localhost:8080/api/webhook"
 	},
 	"devDependencies": {
 		"@iconify/svelte": "^3.1.4",

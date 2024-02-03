@@ -8,7 +8,7 @@ import { stripe } from '$lib/server/stripe';
 
 export const load = (async ({ locals }) => {
     const session = await locals.auth.validate();
-    console.log("session", session)
+
     //if we have session and email is not verified redirect to email verification page
     if (session) {
         if (!session.user.emailVerified) throw redirect(302, "/email-verification");
@@ -99,6 +99,17 @@ export const actions = {
     cancelSub: async ({ request, locals }) => {
         const session = await locals.auth.validate();
         const form = await request.formData()
+        const accountValue = form.get('cancel') as string ;
+
+        if (!accountValue || accountValue.toLowerCase() !== "subscription") {
+            return {
+                status: 411,
+                body: {
+                    error: 'Please fillout all fields.',
+                    errorType: "cancelSubscription"
+                }
+            };
+        }
 
         let user: PrismaUser | null = await prisma.user.findUnique({
             where: {
@@ -127,7 +138,64 @@ export const actions = {
 
     },
     deleteAccount: async ({ request, locals }) => {
+        const session = await locals.auth.validate();
+        const form = await request.formData();
+        const accountValue = form.get('account') as string ;
 
+        if (!accountValue || accountValue.toLowerCase() !== "delete") {
+            return {
+                status: 411,
+                body: {
+                    error: 'Please fillout all fields.',
+                    errorType: "cancelAccount"
+                }
+            };
+        }
+
+
+        // if they are deleting an account with a subscription we need to cancel the subscription
+        if(session.subscribed){
+            let user: PrismaUser | null = await prisma.user.findUnique({
+                where: {
+                    id: session.user.userId
+                },
+                include: {
+                    auth_session: true,
+                    key: true,
+                    subscription: true
+                }
+            })
+    
+            if (!user || user.subscription.length === 0) {
+                return {
+                    status: 401,
+                    body: { error: 'User Subscription not found.' }
+                };
+            }
+    
+            let deletedSubscription = await cancelSubscription(user?.subscription[0]?.stripe_subscription_id)
+    
+            /*return {
+                status: 200,
+                body: deletedSubscription
+            };*/
+        }
+
+        //lets make the account deleted
+        await prisma.user.update({
+            where: { id: session.user.userId },
+            data: { deleted_at: new Date() } // Set the deletedAt field to the current timestamp
+        });
+
+        //remove the seesion in the auth request
+        locals.auth.setSession(null);
+        
+        return {
+            status: 200,
+            body: {
+                message: 'User is as deleted.'
+            }
+        };
     },
     updateUser: async ({ request, locals }) => {
         const session = await locals.auth.validate();

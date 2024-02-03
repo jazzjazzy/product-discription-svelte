@@ -2,7 +2,7 @@ import prisma from "$lib/server/prisma";
 
 export async function getUserlogin(userId: string) {
     const user = await prisma.user.findUnique({
-        where: { id: userId },
+        where: { id: userId, deleted_at: null },
         include: {
             subscription: {
                 include: {
@@ -75,24 +75,24 @@ export async function countMonthlyDescriptions(userId: string) {
  * @returns 
  */
 
-export async function isPlanLimitReached(userId: string , plan: string) {
+export async function isPlanLimitReached(userId: string, plan: string) {
 
     // ultra plan has no limit so return false 
     if (plan === 'Ultra') { return false }
     // if no plan is set then set to free
-    if(!plan) { plan = 'Free' }
-   
+    if (!plan) { plan = 'Free' }
+
     let totalRecordsThisMonth = await countMonthlyDescriptions(userId);
-    
+
     let monthlyLimit = false;
 
-    const pricing = await prisma.pricing.findFirst({ where: { name: plan }, select: { limit: true }});
+    const pricing = await prisma.pricing.findFirst({ where: { name: plan }, select: { limit: true } });
 
-    if(!pricing) { 
+    if (!pricing) {
         throw new Error('No pricing plan found - can\'t determine limit');
     }
 
     if (totalRecordsThisMonth >= pricing.limit) { monthlyLimit = true }
-    
+
     return monthlyLimit;
 }
