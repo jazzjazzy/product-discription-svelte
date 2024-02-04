@@ -13,9 +13,14 @@ export async function load({ url, locals }) {
   // pull payment intent id from the URL query string
   const id = url.searchParams.get('payment_intent')
 
-
-  if(id === null) {
-    return { message: 'Success! Subscription has been updated.', change: change }
+  //TODO: not to sure about this thought it would only be shown if the user is updating their subscription
+  // but seem to be shown on first purchase as well, need to check it out jason:3/2/2024
+  if (id === null) {
+    return {
+      message: `<span class="font-semibold">Great news!</span> Your subscription has been successfully updated. Rest assured, your new
+   plan will be applied to your next billing cycle. We're thrilled to continue serving you with
+    our top-notch selections.`, change: change
+    }
   }
 
   // ask Stripe for latest info about this paymentIntent
@@ -33,7 +38,9 @@ export async function load({ url, locals }) {
 
   switch (paymentIntent.status) {
     case 'succeeded':
-      message = 'Success! Payment received.'
+      message = `<span class="font-semibold">Great news!</span> Your subscription has been successfully updated. Rest assured, your new
+       plan will be applied to your next billing cycle. We're thrilled to continue serving you with
+        our top-notch selections.`
 
       await prisma.subscription.update({
         where: {

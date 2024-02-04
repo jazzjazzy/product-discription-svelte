@@ -1,5 +1,5 @@
 // routes/login/facebook/callback/+server.ts
-import { getUserlogin } from "$lib/helpers/user.js";
+import { getUserlogin, addSessionDetailsToLocals } from "$lib/helpers/user.js";
 import { auth, facebookAuth } from "$lib/server/lucia";
 import { OAuthRequestError } from "@lucia-auth/oauth";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
@@ -39,16 +39,8 @@ export const GET = async ({ url, cookies, locals }) => {
 
 		const { name, role, subscribed, plan } = await getUserlogin(user.userId);
 
-		const session = await auth.createSession({
-			userId: user.userId,
-			attributes: {
-				name,
-				role,
-				subscribed,
-				plan
-			}
-		});
-		locals.auth.setSession(session);
+		await addSessionDetailsToLocals(user.userId, name, role, subscribed, plan, locals);
+
 		return new Response(null, {
 			status: 302,
 			headers: {

@@ -1,4 +1,7 @@
 import prisma from "$lib/server/prisma";
+import { auth } from "$lib/server/lucia";
+import type { Key } from "lucia";
+
 
 export async function getUserlogin(userId: string) {
     const user = await prisma.user.findUnique({
@@ -95,4 +98,31 @@ export async function isPlanLimitReached(userId: string, plan: string) {
     if (totalRecordsThisMonth >= pricing.limit) { monthlyLimit = true }
 
     return monthlyLimit;
+}
+
+/**
+ * Will addes the session details to the locals object 
+ * 
+ * @param userId 
+ * @param name 
+ * @param role 
+ * @param subscribed 
+ * @param plan 
+ * @param locals 
+ */
+export async function addSessionDetailsToLocals(userId:string, name: string, role:string|undefined, subscribed:boolean, plan:string|undefined, locals: App.Locals ){
+    
+    let upperPlan = (plan) ? `${plan.charAt(0).toUpperCase()}${plan.slice(1)}`: undefined;
+    
+    const session = await auth.createSession({
+        userId: userId,
+        attributes: {
+            name,
+            role,
+            subscribed,
+            plan: upperPlan
+        },
+    });
+
+    locals.auth.setSession(session); 
 }

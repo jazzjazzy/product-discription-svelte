@@ -25,7 +25,7 @@ async function main() {
                         "Basic to creative style writing", 
                         "Small medium and large text length"
                         ]`,
-                    stripe_price_id: 'price_1ONkrkHOzYU2TTIbKBzYvMPu',
+                    stripe_price_id: 'price_1OfbdBHOzYU2TTIbaElZZ1w1',
                     visable: true,
                 },
                 {
@@ -39,7 +39,7 @@ async function main() {
                         "A history of all your descriptions",
                         "Generated long tail keywords"
                         ]`,
-                    stripe_price_id: 'price_1ONkrLHOzYU2TTIbRKXPpHLm',
+                    stripe_price_id: 'price_1OfbdmHOzYU2TTIbO6FTd2xz',
                     visable: true,
                 },
                 {
@@ -53,7 +53,7 @@ async function main() {
                         "A history of all your descriptions",
                         "Generated long tail keywords"
                         ]`,
-                    stripe_price_id: 'price_1ONkqrHOzYU2TTIbJsgW4hcu',
+                    stripe_price_id: 'price_1OfbeNHOzYU2TTIb0BT9i8yx',
                     visable: true,
                 },
             ],

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from '$lib/server/lucia';
 import { generateEmailVerificationToken } from "$lib/server/token";
 import { sendEmailVerificationLink } from "$lib/server/email";
+import { addSessionDetailsToLocals } from "$lib/helpers/user";
 
 
 export const load = (async ({ locals }) => {
@@ -107,16 +108,7 @@ export const actions = {
                 }
             });
 
-            const session = await auth.createSession({
-                userId: user.userId,
-                attributes: {
-                    name: `${result.firstname} ${result.surname}`,
-                    role: 'USER',
-                    subscribed: false,
-                    plan: undefined
-                },
-            });
-            locals.auth.setSession(session); // set the session in the auth request
+            await addSessionDetailsToLocals(user.userId, `${result.firstname} ${result.surname}`, 'USER', false, undefined, locals);
 
             const token = await generateEmailVerificationToken(user.userId);
             let verificationSent = await sendEmailVerificationLink(token, result.email);
