@@ -1,9 +1,12 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import Icon from '@iconify/svelte';
+	import Gtag from '$lib/components/googleTag.svelte';
 
 	export let data: PageData;
 </script>
+
+<Gtag />
 
 <div class="w-full">
 	<section>
