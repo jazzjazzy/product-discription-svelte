@@ -25,7 +25,7 @@ async function main() {
                         "Basic to creative style writing", 
                         "Small medium and large text length"
                         ]`,
-                    stripe_price_id: 'price_1ONkrkHOzYU2TTIbKBzYvMPu',
+                    stripe_price_id: 'price_1OfbdBHOzYU2TTIbaElZZ1w1',
                     visable: true,
                 },
                 {
@@ -39,7 +39,7 @@ async function main() {
                         "A history of all your descriptions",
                         "Generated long tail keywords"
                         ]`,
-                    stripe_price_id: 'price_1ONkrLHOzYU2TTIbRKXPpHLm',
+                    stripe_price_id: 'price_1OfbdmHOzYU2TTIbO6FTd2xz',
                     visable: true,
                 },
                 {
@@ -53,7 +53,7 @@ async function main() {
                         "A history of all your descriptions",
                         "Generated long tail keywords"
                         ]`,
-                    stripe_price_id: 'price_1ONkqrHOzYU2TTIbJsgW4hcu',
+                    stripe_price_id: 'price_1OfbeNHOzYU2TTIb0BT9i8yx',
                     visable: true,
                 },
             ],
@@ -75,6 +75,7 @@ async function main() {
         await prisma.key.createMany({
             data: [
                 {
+                    //password: 'CowCow1970!',
                     id: 'email:admin@dis-scription.com',
                     hashed_password: 's2:iminjm156adzm32l:a2e3e2324b129e377a6dd850f2a25219ace34572abbd6c9e884e7e5511f7713b9aeb4586eeb1d597ad18d87c889326c80d8f88dd76728349479a90163592b914',
                     user_id: 'zystu2u4pqh'

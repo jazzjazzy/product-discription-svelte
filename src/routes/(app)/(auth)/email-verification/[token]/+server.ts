@@ -1,6 +1,6 @@
 import { auth } from "$lib/server/lucia";
 import { validateEmailVerificationToken } from "$lib/server/token";
-import { getUserlogin } from "$lib/helpers/user";
+import { getUserlogin, addSessionDetailsToLocals } from "$lib/helpers/user";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ params, locals }) => {
@@ -16,17 +16,8 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 		});
 		const { name, role, subscribed, plan } = await getUserlogin(user.userId);
 
-		const session = await auth.createSession({
-			userId: user.userId,
-			attributes: {
-				name,
-				role,
-				subscribed,
-				plan,
-			}
-		});
+		await addSessionDetailsToLocals(user.userId, name, role, subscribed, plan, locals);
 
-		locals.auth.setSession(session);
 		return new Response(null, {
 			status: 302,
 			headers: {
@@ -35,7 +26,7 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 		});
 	} catch (e) {
 		console.error(e);
-				return new Response("Invalid email verification link", {
+		return new Response("Invalid email verification link", {
 			status: 400
 		});
 	}

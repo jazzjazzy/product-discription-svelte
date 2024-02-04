@@ -264,9 +264,9 @@
 				</card-header>
 				<card-body>
 					<p>
-						Once your account is deleted, all of its resources and data will be permanently deleted.
-						Before deleting your account, please download any data or information that you wish to
-						retain.
+						Your current active subscription is <span class="font-semibold"
+							>{subscription.type}</span
+						> details below:
 					</p>
 					<div
 						class="border py-6 border-slate-800 rounded-sm shadow-lg mt-1 md:mt-3 flex justify-items-center"
@@ -307,6 +307,13 @@
 							{/if}
 						</div>
 					</div>
+					<p class="text-xs pt-3">
+						if you cancel your subscription, You'll continue to have access to all subscription
+						benefits until the end of your current billing cycle. No further charges will be applied
+						to your account once the current billing period concludes. your account data and
+						preferences may be stored for a limited time, allowing for an easier reactivation in the
+						future should you choose to return.
+					</p>
 				</card-body>
 
 				<card-footer>
@@ -334,7 +341,12 @@
 									subscription enter <span class="font-semibold">'Subscription'</span> in the field below.
 									and the click the Cancel Subscription button.
 								</div>
-								<input type="text" name="cancel" bind:value={SubscriptionValue} placeholder="Type here..." />
+								<input
+									type="text"
+									name="cancel"
+									bind:value={SubscriptionValue}
+									placeholder="Type here..."
+								/>
 							</div>
 						</Dialog>
 					</form>
@@ -346,12 +358,14 @@
 				<h3 class="bg-red-300 text-red-700 text-sh">Delete Account</h3>
 			</card-header>
 			<card-body>
-				Once your account is deleted, all of its resources and data will be permanently deleted.
-				Before deleting your account, please download any data or information that you wish to
-				retain.
+				Once your account is deleted, all of its resources and data will not be
+				accessible. Before deleting your account, please download any data or information that you
+				wish to retain.
 			</card-body>
 			<card-footer>
-				<button class="btn variant-filled-secondary" on:click={openDeleteDialog}> Delete Account </button>
+				<button class="btn variant-filled-secondary" on:click={openDeleteDialog}>
+					Delete Account
+				</button>
 
 				<form method="post" action="?/deleteAccount">
 					<Dialog isOpen={isDeleteDialogOpen} onClose={closeDeleteDialog}>
@@ -367,7 +381,12 @@
 									>'Delete'</span
 								> in the field below. and the click the Cancel Delete button.
 							</div>
-							<input type="text" name="account" bind:value={deleteValue} placeholder="Type here..." />
+							<input
+								type="text"
+								name="account"
+								bind:value={deleteValue}
+								placeholder="Type here..."
+							/>
 						</div>
 					</Dialog>
 				</form>

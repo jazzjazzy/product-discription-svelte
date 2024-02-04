@@ -1,7 +1,7 @@
 // routes/login/google/callback/+server.ts
 import { auth, googleAuth } from "$lib/server/lucia"
 import { OAuthRequestError } from "@lucia-auth/oauth";
-import { getUserlogin } from "$lib/helpers/user";
+import { getUserlogin, addSessionDetailsToLocals } from "$lib/helpers/user";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
 import { error, redirect } from "@sveltejs/kit";
 
@@ -38,16 +38,8 @@ export const GET = async ({ url, cookies, locals }) => {
 		const user = await getUser();
 		const { name, role, subscribed, plan } = await getUserlogin(user.userId);
 
-		const session = await auth.createSession({
-			userId: user.userId,
-			attributes: {
-				name,
-				role,
-				subscribed,
-				plan,
-			}
-		});
-		locals.auth.setSession(session);
+		await addSessionDetailsToLocals(user.userId, name, role, subscribed, plan, locals);
+
 		return new Response(null, {
 			status: 302,
 			headers: {
