@@ -1,7 +1,7 @@
 import { auth } from "$lib/server/lucia";
 import { fail, redirect } from "@sveltejs/kit";
 import { validatePasswordResetToken } from "$lib/server/token";
-import { getUserlogin } from "$lib/helpers/user";
+import { getUserlogin, addSessionDetailsToLocals } from "$lib/helpers/user";
 import { z, ZodError } from "zod";
 
 import type { Actions } from "./$types";
@@ -65,16 +65,8 @@ export const actions: Actions = {
 			}
 
 			const { name, role, subscribed, plan } = await getUserlogin(user.userId);
-			const session = await auth.createSession({
-				userId: user.userId,
-				attributes: {
-					name,
-					role,
-					subscribed,
-					plan,
-				}
-			});
-			locals.auth.setSession(session);
+
+			await addSessionDetailsToLocals(user.userId, name, role, subscribed, plan, locals);
 
 			throw redirect(302, "/");
 		} catch (err) {

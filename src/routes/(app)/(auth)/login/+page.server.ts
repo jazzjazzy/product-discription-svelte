@@ -2,7 +2,8 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { zfd } from "zod-form-data";
 import { auth } from '$lib/server/lucia';
-import { getUserlogin } from '$lib/helpers/user';
+import { getUserlogin, addSessionDetailsToLocals } from '$lib/helpers/user';
+
 
 export const load = (async ({ cookies, locals }) => {
     //if we have session and email is not verified redirect to email verification page
@@ -47,18 +48,8 @@ export const actions: Actions = {
 
             var { name, role, subscribed, plan } = await getUserlogin(key.userId);
 
-            const session = await auth.createSession({
-                userId: key.userId,
-                attributes: {
-                    name: name,
-                    role: role,
-                    subscribed: subscribed,
-                    plan: plan
-
-                },
-            });
-
-            locals.auth.setSession(session); // set the session in the auth request
+            await addSessionDetailsToLocals(key.userId, name, role, subscribed, plan, locals);
+           
 
         } catch (e: any) {
             return fail(400, { message: e.message + " = " + e.code })

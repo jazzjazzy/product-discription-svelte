@@ -4,6 +4,7 @@
 	import { enhance } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
 	import Icon from '@iconify/svelte';
+	import { dev } from '$app/environment';
 	//local components
 	import InputProduct from '$lib/components/dashboard/inputs/inputProduct.svelte';
 	import InputStore from '$lib/components/dashboard/inputs/inputStore.svelte';
@@ -25,7 +26,9 @@
 	let errorProductDesc: string | null = null;
 
 	let sessionId = data.session;
-	let plan = data.plan;
+
+	//Todo: change this to convert to lower and set constant to lowercase
+	let plan = (data.plan)? `${data.plan.charAt(0).toUpperCase()}${data.plan.slice(1)}`: undefined;
 
 	let temperature = 0.2; // Default value for the slider
 	let charatorCount = 500; // Default value for the slider
@@ -59,12 +62,17 @@
 	let keywordLength = 20;
 	let clearKeywords = ''; //keywords without the ones that are more than 20 characters
 	//outgoing data to description product
-	//let productDescription = '';
-	//let storeDescription = '';
-	let productDescription =
-		'This is a dice tower with an inbuilt tray made from cherry wood and lined with a blue felt';
-	let storeDescription =
-		'we are a store that sells equipment for board games, dice games and role-playing games, we sell dice towers and dice trays hand-made from exotic wood species ';
+
+	let productDescription = '';
+	let storeDescription = '';
+
+	// if dev mode set default values, as I am lazy to enter them all the time
+	if (dev) {
+		productDescription =
+			'This is a dice tower with an inbuilt tray made from cherry wood and lined with a blue felt';
+		storeDescription =
+			'we are a store that sells equipment for board games, dice games and role-playing games, we sell dice towers and dice trays hand-made from exotic wood species ';
+	}
 
 	let imageIsUpload = false;
 
@@ -351,7 +359,7 @@
 				</div>
 
 				<div class="w-full">
-					{#if !monthlyLimit}
+					{#if !monthlyLimit || plan == 'Ultra'}
 						<div class="flex justify-center">
 							<button
 								class="btn variant-filled my-6 w-full shadow-lg shadow-slate-400 m-2 md:w-4/6 xl:w-2/6 text-fuchsia-400 rounded-lg"

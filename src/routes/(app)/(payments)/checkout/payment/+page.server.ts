@@ -5,7 +5,7 @@ import type { User as PrismaUser } from '$lib/types/user';
 import type { Subscription } from '$lib/types/subscription';
 import { redirect, error } from '@sveltejs/kit';
 import { auth } from "$lib/server/lucia";
-import { getUserlogin } from "$lib/helpers/user";
+import { getUserlogin, addSessionDetailsToLocals } from "$lib/helpers/user";
 import type { SubscriptionCreation } from '$lib/types/subscription';
 
 /**
@@ -136,16 +136,8 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
 
       //update the session and add the new plan
       const { name, role, subscribed, plan } = await getUserlogin(session.user.userId);
-      const newSession = await auth.createSession({
-        userId: session.user.userId,
-        attributes: {
-          name,
-          role,
-          subscribed,
-          plan: newPricing.name.toLowerCase(),
-        }
-      });
-      locals.auth.setSession(newSession);
+
+      await addSessionDetailsToLocals(session.user.userId, name, role, subscribed, plan, locals);
 
       throw redirect(302, '/checkout/complete?change=true');
     }
@@ -242,16 +234,8 @@ export async function load({ url, locals }): Promise<{ clientSecret: string; ret
 
     //update the session and add the new plan
     const { name, role, subscribed, plan } = await getUserlogin(session.user.userId);
-    const newSession = await auth.createSession({
-      userId: session.user.userId,
-      attributes: {
-        name,
-        role,
-        subscribed,
-        plan: pricing.name.toLowerCase(),
-      }
-    });
-    locals.auth.setSession(newSession);
+
+    await addSessionDetailsToLocals(session.user.userId, name, role, subscribed, plan, locals);
 
     return clientSecret;
   }

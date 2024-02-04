@@ -9,7 +9,7 @@
 	<card-main class="w-full md:w-2/4">
 		<card-header><h1 class="h2 md:h1">Checkout complete</h1></card-header>
 		<card-body class="py-4">
-			{data.message}
+			{@html data.message}
 			{#if data.change}
 				<div class="py-4">Your order has been updated and will be charged in your next billing cycle</div>
 			{/if}
